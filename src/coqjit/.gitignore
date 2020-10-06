@@ -1,0 +1,11 @@
+*.vo
+*.vok
+*.vos
+*.glob
+*.aux
+.depend
+_build/
+extraction/
+jit
+test_optim
+.lia.cache

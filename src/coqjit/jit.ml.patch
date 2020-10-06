@@ -1,0 +1,29 @@
+--- a/jit.ml	2020-06-05 14:51:15.349000000 +0200
++++ b/jit.ml	2020-06-05 14:53:02.872000000 +0200
+@@ -192,9 +192,18 @@
+
+ (** val jit_step : jit_state -> (jit_state * trace) res **)
+
++let do_native_call = ref (fun _ _ _ -> assert false)
++
+ let jit_step js =
+   bind (OK (profiler js.prof_state js.synchro)) (fun newps ->
+     match next_status newps js.nb_optim with
+     | Exe ->
++    begin match !Flags.enable_native, js.synchro with
++    | true, S_Call (fid, param_vals, osf) ->
++       let {stack} = js in
++       let js = (!do_native_call) {js with stack=[]; prof_state=newps} fid param_vals in
++       assert (js.stack = []);
++       OK ({js with stack=(forge_call_stackframe stack osf)}, [])
++    | _ ->
+       bind2 (forge_interpreter_state js.prog js.stack js.synchro)
+         (fun int_state newstack ->
+         bind3 (interpreter js.prog int_state js.mem)
+@@ -203,6 +212,7 @@
+           newps; mem = newmem; stack = newstack; synchro = newsynchro;
+           nb_optim = js.nb_optim }, output)))
++    end
+     | Opt ->
+       bind (OK (safe_optimize newps js.prog)) (fun newp -> OK ({ prog = newp;
+         prof_state = newps; mem = js.mem; stack = js.stack; synchro =

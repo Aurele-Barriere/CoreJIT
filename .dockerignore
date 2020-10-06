@@ -1,0 +1,11 @@
+src/coqjit/*.vo
+src/coqjit/*.vok
+src/coqjit/*.vos
+src/coqjit/*.glob
+src/coqjit/*.aux
+src/coqjit/.depend
+src/coqjit/_build/
+src/coqjit/extraction/
+src/coqjit/jit
+src/coqjit/test_optim
+src/native_lib/*.o

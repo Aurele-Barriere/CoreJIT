@@ -1,0 +1,41 @@
+
+[Main: Fun1]
+
+Function Fun1:
+Parameters: ()
+Version:
+[Entry: lbl10]
+<lbl10> reg1 <- Call Fun3 (1,1) lbl20
+<lbl20> reg1 <- Call Fun3 (5,5) lbl30
+<lbl30> reg1 <- Call Fun3 (7,7) lbl40
+<lbl40> reg1 <- 0 lbl50
+<lbl50> reg2 <- Call Fun2 (reg1) lbl60
+<lbl60> Print reg2 lbl70
+<lbl70> reg1 <- Plus reg1 1 lbl80
+<lbl80> reg3 <- Eq reg1 20 lbl90
+<lbl90> Cond reg3 lbl100 lbl50
+<lbl100> Return 0
+EndVersion
+EndFunction
+
+Function Fun2:
+Parameters: (reg1)
+Version:
+[Entry: lbl10]
+<lbl10> reg2 <- 0 lbl20
+<lbl20> reg2 <- Call Fun3 (reg1,reg1) lbl30
+<lbl30> Return reg2
+EndVersion
+EndFunction
+
+Function Fun3:
+Parameters: (reg1,reg2)
+Version:
+[Entry: lbl10]
+<lbl10> # reg1 = reg2 lbl20
+<lbl20> reg3 <- Plus reg1 reg2 lbl30
+<lbl30> Return reg3
+EndVersion
+EndFunction
+
+EndProgram

@@ -1,0 +1,37 @@
+
+[Main: Fun1]
+
+Function Fun1:
+Parameters: ()
+
+Version:
+[Entry: lbl1]
+<lbl1> reg1 <- 0 lbl2
+<lbl2> reg2 <- Mult reg1 reg1 lbl21
+<lbl21> Store Mem[1] <- reg2 lbl22
+<lbl22> reg2 <- Load Mem[1] lbl3
+<lbl3> Print reg2 lbl4
+<lbl4> reg1 <- Plus reg1 1 lbl5
+<lbl5> reg3 <- Eq reg1 15 lbl6
+<lbl6> Cond reg3 lbl7 lbl2
+<lbl7> Return reg2
+EndVersion
+
+Version:
+[Entry: lbl1]
+<lbl1> reg1 <- 0 lbl2
+<lbl2> reg2 <- Mult reg1 reg1 lbl21
+<lbl21> Store Mem[1] <- reg2 lbl211
+<lbl211> Assume (Lt reg2 2) Fun1.lbl22 {(reg1,reg1) (reg2, reg2)} [] lbl22
+<lbl22> reg2 <- Load Mem[1] lbl3
+<lbl3> Print reg2 lbl4
+<lbl4> reg1 <- Plus reg1 1 lbl5
+<lbl5> reg3 <- Eq reg1 15 lbl6
+<lbl6> Cond reg3 lbl7 lbl2
+<lbl7> Return reg2
+EndVersion
+
+EndFunction
+
+EndProgram
+

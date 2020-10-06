@@ -1,0 +1,30 @@
+
+[Main: Fun1]
+
+Function Fun1:
+Parameters: ()
+
+Version:
+[Entry: lbl1]
+<lbl1> reg100 <- 1 lbl2
+<lbl2> reg200 <- Call Fun2 (reg100, 0) lbl3
+<lbl3> Framestate Fun1.lbl3 {(reg100,1)} [] lbl100
+<lbl100> Return 0
+EndVersion
+
+EndFunction
+
+Function Fun2:
+Parameters: (reg4, reg5)
+
+Version:
+[Entry: lbl1]
+<lbl1> reg1 <- reg4 lbl2
+<lbl2> Assume (1) Fun2.lbl1 {(reg4,reg1)} [] lbl3
+<lbl3> Return reg1
+EndVersion
+
+EndFunction
+
+EndProgram
+

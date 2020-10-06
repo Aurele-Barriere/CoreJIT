@@ -1,0 +1,47 @@
+[Main: Fun1]
+
+Function Fun1:
+Parameters: ()
+
+Version:
+[Entry: lbl1]
+<lbl1> Nop lbl2
+<lbl2> reg2 <- Plus 1 -3 lbl3
+<lbl3> reg3 <- Minus reg2 0 lbl4
+<lbl4> reg4 <- Mult reg2 reg3 lbl5
+<lbl5> reg5 <- Gt reg2 0 lbl6
+<lbl6> reg6 <- Lt reg3 reg4 lbl7
+<lbl7> reg7 <- Geq reg3 reg2 lbl8
+<lbl8> reg8 <- Leq 0 2 lbl9
+<lbl9> reg9 <- Eq 0 reg8 lbl10
+<lbl10> reg10 <- Uminus reg2 lbl11
+<lbl11> reg11 <- Neg reg8 lbl12
+<lbl12> reg12 <- 3 lbl13
+<lbl13> reg13 <- Call Fun2 (Neg reg12, 14) lbl14
+<lbl14> Store Mem[@1] <- reg12 lbl15
+<lbl15> reg15 <- Load Mem[Plus @1 0] lbl16
+<lbl16> Print reg2 lbl17
+<lbl17> Assume (Eq reg2 0) Fun2.lbl1 {(reg1,17) (reg2,34)} [] lbl18
+<lbl18> Return 0
+EndVersion
+EndFunction
+
+Function Fun2:
+Parameters: (reg1, reg2)
+
+Version:
+[Entry: lbl1]
+<lbl1> Print reg2 lbl3
+<lbl3> reg7 <- Plus @3 2 lbl6
+<lbl4> Print reg7 lbl5
+<lbl5> Fail "Fail test error message"
+<lbl2> Return reg2
+EndVersion
+
+Version:
+[Entry: lbl1]
+<lbl1> Return Plus 14 1
+EndVersion
+EndFunction
+
+EndProgram

@@ -1,0 +1,22 @@
+opam-version: "2.0"
+name: "coqjit"
+version: "~dev"
+synopsis: "JIT me correct"
+maintainer: "Aurele-Barriere"
+authors: ["Aurele-Barriere"]
+license: "whatever"
+homepage: "https://github.com/Aurele-Barriere/CoreJIT"
+dev-repo: "git://git@github.com/Aurele-Barriere/CoreJIT.git"
+bug-reports: "https://github.com/Aurele-Barriere/CoreJIT/issues"
+depends: [
+  "coq"             {="8.11.2"}
+  "ocaml"           {<"4.10.0" >="4.07"}
+  "ocamlbuild"
+  "menhir"
+  "ctypes"
+  "ctypes-foreign"
+  "llvm"            {="9.0.0"}
+]
+build: [
+  [make]
+]

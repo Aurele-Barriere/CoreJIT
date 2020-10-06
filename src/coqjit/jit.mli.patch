@@ -1,0 +1,8 @@
+--- a/jit.mli	2020-06-04 11:04:59.055000000 +0200
++++ b/jit.mli	2020-06-04 11:00:26.233000000 +0200
+@@ -52,3 +52,5 @@
+ val jit_final_value : jit_state -> value option
+ 
+ val jit_program : jit_state -> program
++
++val do_native_call : (jit_state -> fun_id -> value list -> jit_state) ref

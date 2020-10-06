@@ -1,0 +1,35 @@
+
+[Main: Fun1]
+
+Function Fun1:
+Parameters: ()
+
+Version:
+[Entry: lbl10]
+<lbl10> SPrint "Bonjour" lbl1
+<lbl1> reg1 <- 0 lbl2
+<lbl2> reg2 <- Call Fun2 (reg1) lbl3
+<lbl3> Print reg2 lbl4
+<lbl4> reg1 <- Plus reg1 1 lbl5
+<lbl5> reg3 <- Eq reg1 15 lbl6
+<lbl6> Cond reg3 lbl7 lbl2
+<lbl7> Return 0
+EndVersion
+
+EndFunction
+
+Function Fun2:
+Parameters: (reg4)
+
+Version:
+[Entry: lbl1]
+<lbl1> reg1 <- 1 lbl2
+<lbl2> reg2 <- Plus reg1 20 lbl3
+<lbl3> reg13 <- Mult reg4 reg4 lbl4
+<lbl4> Return reg13
+EndVersion
+
+EndFunction
+
+EndProgram
+
