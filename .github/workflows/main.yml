@@ -1,0 +1,25 @@
+name: Create Artifact
+on:
+  push: {}
+  release:
+    types:
+      - created
+
+jobs:
+
+  build-image:
+    name: Build and push docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: docker build . --file Dockerfile --tag coqjit
+      - name: Test
+        run: docker run coqjit
+      - name: Login
+        if: ${{ github.event_name == 'release' }}
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      - name: Push
+        if: ${{ github.event_name == 'release' }}
+        run: docker tag coqjit docker.pkg.github.com/aurele-barriere/CoreJIT/coqjit:${{ github.sha }} && docker push docker.pkg.github.com/aurele-barriere/CoreJIT/coqjit:${{ github.sha }}
