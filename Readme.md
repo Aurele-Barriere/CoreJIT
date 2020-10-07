@@ -80,7 +80,7 @@ To run this artifact it suffices to run:
 ```
 CR=docker    # or podman
 VS=8519c278b0b270c3aeaa65906b2766ec6541d8a6
-RG=registry.github.com/aurele-barriere/corejit
+RG=docker.pkg.github.com/aurele-barriere/corejit/jit
 $CR run $RG:$VS
 ```
 

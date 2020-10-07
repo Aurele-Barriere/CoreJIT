@@ -22,4 +22,4 @@ jobs:
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
       - name: Push
         if: ${{ github.event_name == 'release' }}
-        run: docker tag coqjit docker.pkg.github.com/aurele-barriere/corejit:${{ github.sha }} && docker push docker.pkg.github.com/aurele-barriere/corejit:${{ github.sha }}
+        run: docker tag coqjit docker.pkg.github.com/aurele-barriere/corejit/jit:${{ github.sha }} && docker push docker.pkg.github.com/aurele-barriere/corejit/jit:${{ github.sha }}
