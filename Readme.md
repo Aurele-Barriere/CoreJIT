@@ -86,7 +86,7 @@ $CR run $RG:$VS
 
 If the registry is unavailable, then the container is also included as archive which can be imported using `$CR load < image.tgz`.
 
-This container by default executes the [aec](aec.sh) script, which compiles the proofs, runs all tests and the performance experiments.
+This container by default executes the [aec](https://github.com/Aurele-Barriere/CoreJIT/blob/master/aec.sh) script, which compiles the proofs, runs all tests and the performance experiments.
 
 There are a number of example programs in CoreJITs IR format in [src/coqjit/progs_specIR](https://github.com/Aurele-Barriere/CoreJIT/tree/master/src/coqjit/progs_specIR). To run one of these programs do the following:
 
