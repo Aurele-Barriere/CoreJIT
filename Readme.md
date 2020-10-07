@@ -74,7 +74,7 @@ The CompCert libraries also use 2 Axioms: Functional Extensionality and Classica
 
 # Running CoreJIT
 
-This artifact comes with a prebuilt version of CoreJIT packages as an OCI compliant container.
+This artifact comes with a prebuilt version of CoreJIT packaged as an OCI compliant container.
 To run this artifact it suffices to run:
 
 ```
