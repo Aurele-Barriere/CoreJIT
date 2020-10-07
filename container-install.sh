@@ -26,7 +26,3 @@ eval $(opam env)
 make -j coq
 make -j extract
 make -j ocaml
-
-cd ..
-sudo rm -rf $LLVM
-sudo rm -rf opam-repository
