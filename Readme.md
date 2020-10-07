@@ -134,7 +134,7 @@ docker build . --file Dockerfile
 
 The interesting steps are to be found in the [docker-install.sh](https://github.com/Aurele-Barriere/CoreJIT/blob/master/container-install.sh) script. 
 
-Alternatively CoreJIT can be build on any system with opam as follows:
+Alternatively CoreJIT can be built on any system with opam as follows:
 
 ```
 cd src/coqjit
