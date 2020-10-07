@@ -1,9 +1,6 @@
 This is the developement of CoreJIT, a verified JIT compiler
 
 
-# Build Instructions
-
-
 # CoreJIT code overview
 
 This section details the different components of CoreJIT.
@@ -77,4 +74,74 @@ The CompCert libraries also use 2 Axioms: Functional Extensionality and Classica
 
 # Running CoreJIT
 
-# Experiments
+This artifact comes with a prebuilt version of CoreJIT packages as an OCI compliant container.
+To run this artifact it suffices to run:
+
+```
+CR=docker    # or podman
+VS=8519c278b0b270c3aeaa65906b2766ec6541d8a6
+RG=registry.github.com/aurele-barriere/corejit
+$CR run $RG:$VS
+```
+
+If the registry is unavailable, then the container is also included as archive which can be imported using `$CR load < image.tgz`.
+
+This container by default executes the [aec](aec.sh) script, which compiles the proofs, runs all tests and the performance experiments.
+
+There are a number of example programs in CoreJITs IR format in [src/coqjit/progs_specIR](https://github.com/Aurele-Barriere/CoreJIT/tree/master/src/coqjit/progs_specIR). To run one of these programs do the following:
+
+```
+H=/home/opam/coqjit/
+$CR run $RG:$VS $H/jit $H/progs_specIR/constprop.specir
+```
+
+To get the list of options use
+
+```
+$CR run $RG:$VS $H/jit -h
+```
+
+There are a number of lua programs in [src/coqjit/progs_lua](https://github.com/Aurele-Barriere/CoreJIT/tree/master/src/coqjit/progs_lua). To run one of these programs do the following:
+
+```
+$CR run $RG:$VS $H/jit -f $H/progs_lua/scopes.lua
+```
+
+To run these steps with the native backend enabled additionally pass the `-n` flag.
+
+
+## Reproducing performance numbers
+
+```
+$CR run $RG:$VS $H/jit -f $H/experiments.sh 10
+```
+
+# Building CoreJIT
+
+The container of this artifact includes build dependencies. You can therefore run:
+
+```
+$CR run -it $RG:$VS bash
+```
+
+And, then make changes to the sources, and build everything using `make`.
+
+This artifact also includes a [Dockerfile](https://github.com/Aurele-Barriere/CoreJIT/blob/master/Dockerfile) to build the container using:
+
+```
+docker build . --file Dockerfile
+```
+
+The interesting steps are to be found in the [docker-install.sh](https://github.com/Aurele-Barriere/CoreJIT/blob/master/container-install.sh) script. 
+
+Alternatively CoreJIT can be build on any system with opam as follows:
+
+```
+cd src/coqjit
+wget https://releases.llvm.org/9.0.0/clang+llvm-9.0.0-x86_64-pc-linux-gnu.tar.xz
+tar xf clang+llvm-9.0.0-x86_64-pc-linux-gnu.tar.xz
+PATH="$PATH:$PWD/clang+llvm-9.0.0-x86_64-pc-linux-gnu/bin"
+make install-deps
+eval $(opam env)
+make
+```
