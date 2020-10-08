@@ -94,6 +94,9 @@ The CompCert libraries also use 2 Axioms: Functional Extensionality and Classica
 ## Running CoreJIT
 
 This artifact comes with a prebuilt version of CoreJIT packaged as an OCI compliant container.
+To follow these instructions you need to install a container runtime, such as `docker` or `podman`.
+To follow the local build instructions in the end, you need `opam` installed.
+
 To run this artifact it suffices to run:
 
 ```
@@ -110,19 +113,19 @@ This container by default executes the `aec.sh` script, which compiles the proof
 There are a number of example programs in CoreJITs IR format in `progs_specIR`. To run one of these programs do the following:
 
 ```
-$CR run $RG:$VS "~/jit ~/progs_specIR/constprop.specir"
+$CR run $RG:$VS bash -c "~/coqjit/jit ~/coqjit/progs_specIR/constprop.specir"
 ```
 
 To get the list of options use
 
 ```
-$CR run $RG:$VS "~/jit -h"
+$CR run $RG:$VS bash -c "~/coqjit/jit -h"
 ```
 
 There are a number of lua programs in `progs_lua`. To run one of these programs do the following:
 
 ```
-$CR run $RG:$VS "~/jit -f ~/progs_lua/scopes.lua"
+$CR run $RG:$VS bash -c "~/coqjit/jit -f ~/coqjit/progs_lua/scopes.lua"
 ```
 
 To run these steps with the native backend enabled additionally pass the `-n` flag.
@@ -131,21 +134,34 @@ To run these steps with the native backend enabled additionally pass the `-n` fl
 ### Reproducing performance numbers
 
 ```
-$CR run $RG:$VS "~/jit -f ~/experiments.sh 10"
+$CR run $RG:$VS bash -c "~/coqjit/experiments.sh 10"
 ```
 
 ## Building CoreJIT
 
-The container of this artifact includes build dependencies. You can therefore run:
+The container of this artifact includes build dependencies and source.
+
+To edit and build inside the container use:
 
 ```
 $CR run -it $RG:$VS bash
-$ cd ~/coqjit
-$ make clean
-$ make
+# Then in the container:
+cd ~/coqjit
+make clean
+vim ....    # edit some files
+make
 ```
 
-And, then make changes to the sources, and build everything using `make`.
+To build the sources from this repository from your host filesystem inside the container:
+
+```
+$CR run -v $PWD/src:/home/opam/src -it $RG:$VS bash
+# Then in the container
+cd ~/src/coqjit
+make
+```
+
+### Building the Container
 
 This artifact also includes a `Dockerfile` to build the container using:
 
@@ -155,7 +171,7 @@ docker build . --file Dockerfile
 
 The interesting steps are to be found in the `docker-install.sh` script.
 
-Alternatively CoreJIT can be built on any system with opam as follows:
+Alternatively and optionally CoreJIT can be built on any system with `opam` as follows:
 
 ```
 cd src/coqjit
