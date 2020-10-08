@@ -57,7 +57,7 @@ A simple profiler implementation is defined in `profiler.ml`.
 
 The `backend` directory contains an optional native backend written in OCaml where CoreIR is translated to LLVM IR and then to native code.
 
-To call from the interpreter into native code the extracted jit is modified using the patch in `jit.ml.patch`. This patch adds an alternate execution step that instead of using the interpreter to evaluate instructions of a function, hands control to native code. This part could not be expressed in coq, since the native backend is out of scope of our verification and therefore not modeled in coq.
+To call from the interpreter into native code, the extracted jit is modified using the patch in `jit.ml.patch`. This patch adds an alternate execution step, which instead of using the interpreter to evaluate instructions of a function, hands control to native code. This part could not be expressed in coq, since the native backend is out of scope of our verification and therefore not modeled in coq.
 
 The generated native code relies on some builtin functions in `native_lib/native_lib.c` used for I/O and interfacing with the OCaml runtime.
 
@@ -98,12 +98,12 @@ To run this artifact it suffices to run:
 
 ```
 CR=docker    # or podman
-VS=ff0de016566714f54c9b993bc52dbdf38036cfb6
+VS=90bd61a3e99a3fae1c78d62c60bd69b8d742e485
 RG=quay.io/corejit/jit
 $CR run $RG:$VS
 ```
 
-If the registry is unavailable, then the container is also included as archive which can be imported using `$CR load < image.tgz`.
+The final submission of this artifact will include a copy of the container which can be imported using `$CR load < image.tgz`.
 
 This container by default executes the `aec.sh` script, which compiles the proofs, runs all tests and the performance experiments.
 
