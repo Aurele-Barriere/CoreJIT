@@ -1,16 +1,27 @@
-This is the developement of CoreJIT, a verified JIT compiler
+---
+title: CoreJIT
+author: 
+- Aurèle Barrière
+- Sandrine Blazy
+- Olivier Flückiger
+- David Pichardie
+- Jan Vitek
+---
+This is the development of CoreJIT, a verified JIT compiler.
+This document contains an overview of the code and build instructions.
 
 
-# CoreJIT code overview
+## CoreJIT code overview
 
 This section details the different components of CoreJIT.
 Some definitions have been renamed in the submission.
 Here are their equivalent:
+
 - CoreIR     <->   `SpecIR`
 - core_sem   <->   `specir_sem`
 - Anchor     <->   `Framestate`
 
-## Coq Development
+### Coq Development
 
 The `src/coqjit` directory contains the Coq development for CoreJIT, operating on CoreIR, our intermediate representation for speculative optimizations and deoptimizations.
 CoreIR syntax and semantics are defined in `specIR.v`.
@@ -21,19 +32,19 @@ The different passes of the dynamic optimizer are in separate files (`const_prop
 
 Our developpment uses a few Coq libraries from CompCert. These are located in `src/coqjit/lib`.
 
-## Coq Proofs
+### Coq Proofs
 
 Our final Semantic Preservation Theorem is proved in `jit_proof.v`.
 Each file ending in `_proof.v` contains the correctness proof of a CoreJIT component.
 The Internal Simulation Framework for Dynamic Optimizations is located in `internal_simulations.v`.
 
-## Extraction
+### Extraction
 
 The Coq development is extracted to OCaml as specified by the `extract.v` file.
 This creates an `extraction` directory where the extracted code is located.
 The extraction of `jit` is patched with `jit.ml.patch` to integrate the native backend, which has no representation in coq (see below).
 
-## OCaml Frontend
+### OCaml Frontend
 
 CoreJIT can be run using the extracted OCaml code. The additional OCaml code is out of scope of our verification work.
 The `parsing` directory contains a parser of CoreIR (see examples in `progs_specIR` directory).
@@ -42,7 +53,7 @@ The `frontend` directory contains a frontend from miniLua (see examples in `prog
 The extracted `jit_step` from `jit.v` is looped in `main.ml`. 
 A simple profiler implementation is defined in `profiler.ml`.
 
-## Native Backend
+### Native Backend
 
 The `backend` directory contains an optional native backend written in OCaml where CoreIR is translated to LLVM IR and then to native code.
 
@@ -50,7 +61,7 @@ To call from the interpreter into native code the extracted jit is modified usin
 
 The generated native code relies on some builtin functions in `native_lib/native_lib.c` used for I/O and interfacing with the OCaml runtime.
 
-# Coq Axioms and Parameters
+## Coq Axioms and Parameters
 
 The profiler, optimization heuristics and memory model are external parameters.
 This ensures that the correctness theorems do not depend on their implementation.
@@ -59,6 +70,7 @@ The Load and Store implementations may fail (return None), for instance for an o
 This corresponds to blocking behaviors in the semantics, and these behaviors are preserved.
 
 Here is a list of Parameters realized during the Coq extraction:
+
 - `profiler_state`:          a type that the profiler can update
 - `initial_profiler_state`:  how to initialiaze the profiler state
 - `profiler`:                updating the profiler state
@@ -79,7 +91,7 @@ Here is a list of Parameters realized during the Coq extraction:
 
 The CompCert libraries also use 2 Axioms: Functional Extensionality and Classical Logic.
 
-# Running CoreJIT
+## Running CoreJIT
 
 This artifact comes with a prebuilt version of CoreJIT packaged as an OCI compliant container.
 To run this artifact it suffices to run:
@@ -116,13 +128,13 @@ $CR run $RG:$VS "~/jit -f ~/progs_lua/scopes.lua"
 To run these steps with the native backend enabled additionally pass the `-n` flag.
 
 
-## Reproducing performance numbers
+### Reproducing performance numbers
 
 ```
 $CR run $RG:$VS "~/jit -f ~/experiments.sh 10"
 ```
 
-# Building CoreJIT
+## Building CoreJIT
 
 The container of this artifact includes build dependencies. You can therefore run:
 

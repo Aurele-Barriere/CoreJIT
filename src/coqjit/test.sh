@@ -5,7 +5,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 JIT=$DIR/jit
 
-for t in constprop insertion native_test2 native_test; do
+for t in constprop native_test2 native_test; do
   echo "=== RUNNING $t"
   p=$DIR/progs_specIR/$t.specir
   $JIT $p
