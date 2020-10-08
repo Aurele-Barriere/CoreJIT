@@ -18,8 +18,10 @@ jobs:
       - name: Test
         run: docker run coqjit
       - name: Login
+        env:
+          QUAY_PW: ${{ secrets.QUAY_PW }}
         if: ${{ github.event_name == 'release' }}
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+        run: echo $QUAY_PW | docker login quay.io -u corejit --password-stdin
       - name: Push
         if: ${{ github.event_name == 'release' }}
-        run: docker tag coqjit docker.pkg.github.com/aurele-barriere/corejit/jit:${{ github.sha }} && docker push docker.pkg.github.com/aurele-barriere/corejit/jit:${{ github.sha }}
+        run: docker tag coqjit quay.io/corejit/jit:${{ github.sha }} && docker push quay.io/corejit/jit:${{ github.sha }}
