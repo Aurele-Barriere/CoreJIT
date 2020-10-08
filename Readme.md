@@ -98,20 +98,19 @@ This container by default executes the [aec](https://github.com/Aurele-Barriere/
 There are a number of example programs in CoreJITs IR format in [src/coqjit/progs_specIR](https://github.com/Aurele-Barriere/CoreJIT/tree/master/src/coqjit/progs_specIR). To run one of these programs do the following:
 
 ```
-H=/home/opam/coqjit/
-$CR run $RG:$VS $H/jit $H/progs_specIR/constprop.specir
+$CR run $RG:$VS "~/jit ~/progs_specIR/constprop.specir"
 ```
 
 To get the list of options use
 
 ```
-$CR run $RG:$VS $H/jit -h
+$CR run $RG:$VS "~/jit -h"
 ```
 
 There are a number of lua programs in [src/coqjit/progs_lua](https://github.com/Aurele-Barriere/CoreJIT/tree/master/src/coqjit/progs_lua). To run one of these programs do the following:
 
 ```
-$CR run $RG:$VS $H/jit -f $H/progs_lua/scopes.lua
+$CR run $RG:$VS "~/jit -f ~/progs_lua/scopes.lua"
 ```
 
 To run these steps with the native backend enabled additionally pass the `-n` flag.
@@ -120,7 +119,7 @@ To run these steps with the native backend enabled additionally pass the `-n` fl
 ## Reproducing performance numbers
 
 ```
-$CR run $RG:$VS $H/jit -f $H/experiments.sh 10
+$CR run $RG:$VS "~/jit -f ~/experiments.sh 10"
 ```
 
 # Building CoreJIT
