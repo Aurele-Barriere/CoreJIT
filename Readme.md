@@ -31,7 +31,7 @@ The Internal Simulation Framework for Dynamic Optimizations is located in `inter
 
 The Coq development is extracted to OCaml as specified by the `extract.v` file.
 This creates an `extraction` directory where the extracted code is located.
-The patch `jit.ml.patch` is applied to the extracted code to enable the backend during the execution.
+The extraction of `jit` is patched with `jit.ml.patch` to integrate the native backend, which has no representation in coq (see below).
 
 ## OCaml Frontend
 
@@ -129,6 +129,9 @@ The container of this artifact includes build dependencies. You can therefore ru
 
 ```
 $CR run -it $RG:$VS bash
+$ cd ~/coqjit
+$ make clean
+$ make
 ```
 
 And, then make changes to the sources, and build everything using `make`.
