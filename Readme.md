@@ -33,15 +33,22 @@ The Coq development is extracted to OCaml as specified by the `extract.v` file.
 This creates an `extraction` directory where the extracted code is located.
 The patch `jit.ml.patch` is applied to the extracted code to enable the backend during the execution.
 
-## Ocaml Develoment
+## OCaml Frontend
 
 CoreJIT can be run using the extracted OCaml code. The additional OCaml code is out of scope of our verification work.
 The `parsing` directory contains a parser of CoreIR (see examples in `progs_specIR` directory).
 The `frontend` directory contains a frontend from miniLua (see examples in `progs_lua`) to CoreIR.
-The `backend` directory contains an optional backend where CoreIR is translated to LLVM IR and then to native code.
 
 The extracted `jit_step` from `jit.v` is looped in `main.ml`. 
 A simple profiler implementation is defined in `profiler.ml`.
+
+## Native Backend
+
+The `backend` directory contains an optional native backend written in OCaml where CoreIR is translated to LLVM IR and then to native code.
+
+To call from the interpreter into native code the extracted jit is modified using the patch in `jit.ml.patch`. This patch adds an alternate execution step that instead of using the interpreter to evaluate instructions of a function, hands control to native code. This part could not be expressed in coq, since the native backend is out of scope of our verification and therefore not modeled in coq.
+
+The generated native code relies on some builtin functions in `native_lib/native_lib.c` used for I/O and interfacing with the OCaml runtime.
 
 # Coq Axioms and Parameters
 
