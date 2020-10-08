@@ -43,7 +43,7 @@ ocaml: ../native_lib/native_lib.o
 	@$(OCB) main.native
 	@mv main.native jit
 
-test_optim: test_optim.ml progs_specIR/insertion.specir
+test_optim: test_optim.ml progs_specIR/test.specir
 	@$(OCB) test_optim.native
 	@mv test_optim.native test_optim
 

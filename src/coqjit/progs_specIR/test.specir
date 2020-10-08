@@ -5,7 +5,7 @@ Parameters: ()
 Version: [Entry: lbl1]
 <lbl1> reg1 <- 0 lbl2
 <lbl2> reg1 <- Call Fun2 (reg1,0) lbl3
-<lbl3> Return Mult reg1 reg2
+<lbl3> Return Mult reg1 reg1
 EndVersion
 EndFunction
 
