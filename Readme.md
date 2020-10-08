@@ -93,9 +93,9 @@ $CR run $RG:$VS
 
 If the registry is unavailable, then the container is also included as archive which can be imported using `$CR load < image.tgz`.
 
-This container by default executes the [aec](https://github.com/Aurele-Barriere/CoreJIT/blob/master/aec.sh) script, which compiles the proofs, runs all tests and the performance experiments.
+This container by default executes the `aec.sh` script, which compiles the proofs, runs all tests and the performance experiments.
 
-There are a number of example programs in CoreJITs IR format in [src/coqjit/progs_specIR](https://github.com/Aurele-Barriere/CoreJIT/tree/master/src/coqjit/progs_specIR). To run one of these programs do the following:
+There are a number of example programs in CoreJITs IR format in `progs_specIR`. To run one of these programs do the following:
 
 ```
 $CR run $RG:$VS "~/jit ~/progs_specIR/constprop.specir"
@@ -107,7 +107,7 @@ To get the list of options use
 $CR run $RG:$VS "~/jit -h"
 ```
 
-There are a number of lua programs in [src/coqjit/progs_lua](https://github.com/Aurele-Barriere/CoreJIT/tree/master/src/coqjit/progs_lua). To run one of these programs do the following:
+There are a number of lua programs in `progs_lua`. To run one of these programs do the following:
 
 ```
 $CR run $RG:$VS "~/jit -f ~/progs_lua/scopes.lua"
@@ -135,13 +135,13 @@ $ make
 
 And, then make changes to the sources, and build everything using `make`.
 
-This artifact also includes a [Dockerfile](https://github.com/Aurele-Barriere/CoreJIT/blob/master/Dockerfile) to build the container using:
+This artifact also includes a `Dockerfile` to build the container using:
 
 ```
 docker build . --file Dockerfile
 ```
 
-The interesting steps are to be found in the [docker-install.sh](https://github.com/Aurele-Barriere/CoreJIT/blob/master/container-install.sh) script. 
+The interesting steps are to be found in the `docker-install.sh` script.
 
 Alternatively CoreJIT can be built on any system with opam as follows:
 
