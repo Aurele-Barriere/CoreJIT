@@ -93,7 +93,7 @@ let main =
   let path = ref "" in
   let enable_lua = ref false in
   let cmd_args = [
-    ("-o", Arg.Set Printer.print_debug_opt_fun, "Print Optmized Functions");
+    ("-o", Arg.Set Printer.print_debug_opt_fun, "Print Optimized Functions");
     ("-s", Arg.Set Printer.print_debug_strings, "Print Debug Strings");
     ("-p", Arg.Set print_debug_program, "Print Debug Program");
     ("-k", Arg.Set Flags.disable_profiler_hints, "Disable profiler using hints");

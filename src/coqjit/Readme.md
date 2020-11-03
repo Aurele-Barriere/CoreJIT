@@ -15,7 +15,7 @@ Once compiled, execute the JIT by typing `./jit prog` where `prog` is a file con
 Examples can be found in the `progs_specIR` or `progs_lua` directory.
 
 You can give an option:
-*  `-o` Print Optmized Functions
+*  `-o` Print Optimized Functions
 *  `-s` Print Debug Strings
 *  `-p` Print Debug Program
 *  `-k` Disable profiler using hints

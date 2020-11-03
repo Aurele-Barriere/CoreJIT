@@ -38,7 +38,7 @@ $CR run $RG:$VS bash -c "~/coqjit/jit ~/coqjit/progs_specIR/constprop.specir"
 To get the list of options use
 
 ```
-$CR run $RG:$VS bash -c "~/coqjit/jit -h"
+$CR run $RG:$VS bash -c "~/coqjit/jit -help"
 ```
 
 There are a number of lua programs in `progs_lua`. To run one of these programs do the following:
