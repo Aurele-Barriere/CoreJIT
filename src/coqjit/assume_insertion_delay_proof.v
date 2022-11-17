@@ -20,7 +20,7 @@ Inductive match_stackframe (v:version) (fid:fun_id) (guard:list expr) (fsl:label
     forall r lbl rm vins abs
       (AS_INSERT: insert_assume_version v fid guard fsl params = OK vins)
       (DEFREGS: defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs)
-      (DEF: forall retval, defined (rm#r<-retval) (absstate_get lbl abs))
+      (DEF: forall retval, defined (rm#r<-retval) (def_absstate_get lbl abs))
       (RET_COND: lbl <> condl),
       (match_stackframe v fid guard fsl condl params) (Stackframe r v lbl rm) (Stackframe r vins lbl rm).
 
@@ -117,7 +117,7 @@ Inductive match_states (p:program) (v:version) (fid:fun_id) (guard: list expr) (
       (TRUE: vcond <> 0)
 
       (DEFREGS: defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs)
-      (DEF: defined rm (absstate_get fsl abs))
+      (DEF: defined rm (def_absstate_get fsl abs))
       (VALIDATE: validator v fsl guard params = OK tt)
       
       (FS_SRC: (ver_code v) # fsl = Some (Framestate (fa,la) vm sl condl))
@@ -137,7 +137,7 @@ Inductive match_states (p:program) (v:version) (fid:fun_id) (guard: list expr) (
       (OPT: insert_assume_version v fid guard fsl params = OK vins)
 
       (DEFREGS: defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs)
-      (DEF: defined rm (absstate_get fsl abs))
+      (DEF: defined rm (def_absstate_get fsl abs))
 
       (FS_SRC: (ver_code v) # fsl = Some (Framestate (fa,la) vm sl condl))
       (CO_SRC: (ver_code v) # condl = Some (Cond condexpr iftrue iffalse))
@@ -156,7 +156,7 @@ Inductive match_states (p:program) (v:version) (fid:fun_id) (guard: list expr) (
       (OPT: insert_assume_version v fid guard fsl params = OK vins)
 
       (DEFREGS: defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs)
-      (DEF: defined rm (absstate_get lbl abs))
+      (DEF: defined rm (def_absstate_get lbl abs))
       
       (NOCOND: lbl <> condl),    (* the condition is matched with delay *)
       (match_states p v fid guard fsl condl params) Two (State s v lbl rm ms) (State s' vins lbl rm ms)
@@ -316,9 +316,9 @@ Proof.
   - unfold validator in VALIDATE. rewrite FS_SRC in VALIDATE. rewrite CO_SRC in VALIDATE.
     destruct (only_pred (ver_code (current_version f)) condl fsl) eqn:ONLY; inv VALIDATE.
     poseq_destr condl (ver_entry (current_version f)). inv H0. repeat do_ok.
-    destruct (absstate_get condl a) eqn:ABSDR; inv H1.
+    destruct (def_absstate_get condl d) eqn:ABSDR; inv H1.
     destruct (check_guard guard r) eqn:CHECK; inv H0.
-    inv DEFREGS. assert (DEF': defined rm (absstate_get condl abs)).
+    inv DEFREGS. assert (DEF': defined rm (def_absstate_get condl abs)).
     { def_ok. rewrite FS_SRC. auto. }
     rewrite ABSDR in DEF'. eapply evaluate_succeeds in CHECK as [v EVAL]; eauto.
     right. exists E0. rewrite OPT in OPTV. inv OPTV. destruct v.
@@ -455,7 +455,7 @@ Qed.
 Ltac def_ok :=
   match goal with
   | [CODE: (ver_code ?vsrc) ! ?lbl = Some ?i |- _] =>
-    eapply analyze_correct; eauto; simpl; auto; unfold dr_transf; try rewrite CODE; auto
+    eapply def_analyze_correct; eauto; simpl; auto; unfold def_dr_transf; try rewrite CODE; auto
   end.
 
 
@@ -489,7 +489,7 @@ Proof.
         rewrite FINDOPTF in HDO1. inv HDO1. apply interpreter_proof.init_regs_correct in HDO0.
         repeat (esplit; eauto).
         eapply opt_match; auto. apply match_stack_same.
-        fold vsrc. fold c. eauto. eapply analyze_init; eauto. 
+        fold vsrc. fold c. eauto. eapply def_analyze_init; eauto. 
       * erewrite <- find_function_unchanged; eauto. rewrite HDO1. simpl. rewrite HDO0. simpl.
         repeat (esplit; eauto). constructor. apply match_stack_same.
     + destruct stack; try destruct s; inv FORGE.
@@ -529,9 +529,9 @@ Proof.
             * auto.
           + eapply opt_match; eauto. poseq_destr iftrue condl. simpl in NO_COND.
             rewrite Pos.eqb_refl in NO_COND. inv NO_COND. auto.
-            eapply analyze_correct. eauto. eapply CO_SRC. simpl. auto. unfold dr_transf.
-            rewrite CO_SRC. eapply analyze_correct. eauto. apply FS_SRC. simpl; auto.
-            unfold dr_transf. rewrite FS_SRC. auto. intro. subst. simpl in NO_COND.
+            eapply def_analyze_correct. eauto. eapply CO_SRC. simpl. auto. unfold def_dr_transf.
+            rewrite CO_SRC. eapply def_analyze_correct. eauto. apply FS_SRC. simpl; auto.
+            unfold def_dr_transf. rewrite FS_SRC. auto. intro. subst. simpl in NO_COND.
             rewrite Pos.eqb_refl in NO_COND. inv NO_COND.
         - simpl in FINDF0. rewrite <- base_version_unchanged in FINDF0. rewrite FINDF0 in FINDF. inv FINDF.
           apply synth_frame_unchanged in SYNTH0. synth_determ; auto.          
@@ -557,8 +557,8 @@ Proof.
             * auto.
           + poseq_destr iffalse condl. simpl in NO_COND. rewrite Pos.eqb_refl in NO_COND.
             poseq_destr iftrue condl; inv NO_COND. econstructor; eauto.
-            eapply analyze_correct. eauto. apply CO_SRC. simpl; auto. unfold dr_transf. rewrite CO_SRC.
-            eapply analyze_correct. eauto. apply FS_SRC. simpl; auto. unfold dr_transf. rewrite FS_SRC.
+            eapply def_analyze_correct. eauto. apply CO_SRC. simpl; auto. unfold def_dr_transf. rewrite CO_SRC.
+            eapply def_analyze_correct. eauto. apply FS_SRC. simpl; auto. unfold def_dr_transf. rewrite FS_SRC.
             auto.
         - exists Zero. exists (State s vsrc fs_lbl rm ms). split. (* We delay one more step *)
           + right. split. apply star_refl. constructor.
@@ -622,7 +622,7 @@ Proof.
               econstructor; eauto. constructor; auto. econstructor; eauto.
               intro. def_ok. apply define_insert; auto.
               poseq_destr next condl; auto. inv NO_COND.
-              unfold vins. simpl. eapply analyze_init; eauto.
+              unfold vins. simpl. eapply def_analyze_init; eauto.
             * simpl in FINDF. erewrite <- find_function_unchanged in FINDF; eauto.
               exists Zero. exists (State (Stackframe retreg vsrc next rm :: s) (current_version func) (ver_entry (current_version func)) newrm ms). split.
               left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.
@@ -696,7 +696,7 @@ Proof.
               rewrite SRC_COND in VALIDATE. destruct (only_pred c condl fs_lbl) eqn:ONLY; inv VALIDATE.
               poseq_destr condl (ver_entry vsrc); inv H0. repeat do_ok.
               eapply opt_match; fold c; eauto. constructor; auto. constructor; auto.
-              unfold vins. simpl. eapply analyze_init; eauto.
+              unfold vins. simpl. eapply def_analyze_init; eauto.
           + simpl in FINDF. erewrite <- find_function_unchanged in FINDF; eauto.
             exists Zero. exists (State (Stackframe retreg v' next rm :: s) (current_version func) (ver_entry (current_version func)) newrm ms). split.
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.

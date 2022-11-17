@@ -266,7 +266,7 @@ Proof.
   - inv EVALL. constructor.
   - inv EVALL.
     + constructor. eapply agree_expr; eauto.
-    + econstructor; eauto. eapply agree_expr; eauto. 
+    + econstructor; eauto. eapply agree_expr; eauto.
 Qed.
 
 (* Same for eval_list *)
@@ -325,8 +325,8 @@ Lemma rm_agree_regmap:
 Proof.
   intros sr rm rm_opt vm. induction vm; intros.
   - inv H0. constructor.
-  - inv H0. inv H1. apply IHvm in UPDATE; auto. 
-    constructor; auto. eapply agree_expr; eauto. 
+  - inv H0. inv H1. apply IHvm in UPDATE; auto.
+    constructor; auto. eapply agree_expr; eauto.
 Qed.
 
 Lemma rm_agree_synth:
@@ -354,7 +354,7 @@ Proof.
   intros rm rm_opt sr o v H H0 H1. inv H1; try constructor.
   unfold caller_op in H0. unfold rm_agree in H. apply H in H0. rewrite H0. auto.
 Qed.
-    
+
 Lemma agree_exprb:
   forall rm rm_opt sr e v,
     rm_agree sr rm rm_opt ->
@@ -369,7 +369,7 @@ Proof.
   - simpl in CALLER. inv EVAL0. eapply agree_opb in EVAL; eauto. constructor.
     econstructor; eauto.
 Qed.
-  
+
 (* Lists of expressions also evaluate to the same values *)
 Lemma agree_list_exprb:
   forall rm rm_opt sr l b,
@@ -383,7 +383,7 @@ Proof.
   - inv EVALL. constructor.
   - inv EVALL.
     + constructor. eapply agree_exprb; eauto.
-    + econstructor; eauto. eapply agree_exprb; eauto. 
+    + econstructor; eauto. eapply agree_exprb; eauto.
 Qed.
 
 (* Same for eval_list *)
@@ -426,7 +426,7 @@ Lemma agree_regmapb:
     update_regmap vm rm newrm.
 Proof.
   intros. generalize dependent newrm. induction vm; intros.
-  - inv H1. constructor. 
+  - inv H1. constructor.
   - inv H1. inv H0. eapply IHvm in H5; eauto. constructor; auto.
     eapply agree_exprb; eauto.
 Qed.
@@ -451,9 +451,9 @@ Lemma caller_expr_max:
     caller_expr sr e.
 Proof.
   intros. destruct e; unfold caller_expr, caller_op, caller_reg. simpl in H. split.
-    + destruct o; auto. simpl in H. apply Pos.max_lub_l in H. auto.
-    + destruct o0; auto. simpl in H. apply Pos.max_lub_r in H. auto.
-    + destruct o; auto.
+  - destruct o; auto. simpl in H. apply Pos.max_lub_l in H. auto.
+  - destruct o0; auto. simpl in H. apply Pos.max_lub_r in H. auto.
+  - destruct o; auto.
 Qed.
 
 Lemma max_listexpr_cons:
@@ -487,7 +487,7 @@ Proof.
   intros. induction l; inv H.
   - unfold max_reg_listexpr. simpl. eapply Pos.le_trans. 2: apply fold_max_init. apply Pos.le_max_r.
   - apply IHl in H0. eapply Pos.le_trans. eauto. simpl. unfold max_reg_listexpr. apply max_listexpr_cons.
-Qed.  
+Qed.
 
 Lemma max_reg_movelist_cons_1:
   forall reg e v,
@@ -594,7 +594,7 @@ Lemma is_caller_expr:
     caller_expr sr e.
 Proof.
   intros caller sr l i e SR CODE INEXPR.
-  unfold max_reg_code in SR. rewrite PTree.fold1_spec in SR. apply PTree.elements_correct in CODE. 
+  unfold max_reg_code in SR. rewrite PTree.fold1_spec in SR. apply PTree.elements_correct in CODE.
   assert (((max_reg_instr i) <= sr)%positive).
   { rewrite SR. eapply Pos.le_trans. 2: eapply fold_max; eauto. simpl. apply Pos.le_refl. }
   eapply in_max_reg; eauto.
@@ -637,7 +637,7 @@ Proof.
   { eapply Pos.max_lub_r; eauto. eapply Pos.max_lub_l; eauto. }
   apply IHml in H0. constructor; auto.
   apply caller_expr_max. auto.
-Qed.  
+Qed.
 
 Lemma is_caller_movelist:
   forall caller sr lbl ml next,
@@ -672,7 +672,7 @@ Proof.
   { eapply Pos.max_lub_l; eauto. }
   apply IHvm in H0. constructor; auto.
   apply caller_expr_max. auto.
-Qed.  
+Qed.
 
 Lemma is_caller_varmap_fs:
   forall caller sr lbl tgt vm sl next,
@@ -742,7 +742,7 @@ Proof.
   rewrite PTree.fold1_spec in SR. apply PTree.elements_correct in CODE.
   assert (((max_reg_instr (Assume guard tgt vm sl next)) <= sr)%positive).
   { rewrite SR. eapply Pos.le_trans. 2: eapply fold_max; eauto. simpl. apply Pos.le_refl. }
-  simpl in H. apply is_caller_synth_list'. eapply Pos.max_lub_r. eauto. 
+  simpl in H. apply is_caller_synth_list'. eapply Pos.max_lub_r. eauto.
 Qed.
 
 
@@ -771,7 +771,7 @@ Proof.
   unfold shift_rm in SHIFT.
   induction EVAL.
   - inv EVAL; inv EVALL; inv EVALR; constructor; econstructor; try constructor; eauto;
-    apply SHIFT; auto.
+      apply SHIFT; auto.
   - inv EVAL. inv EVAL0; constructor; econstructor; try constructor; eauto.
 Qed.
 
@@ -839,7 +839,7 @@ Proof.
     eapply eval_deopt_callee; eauto.
 Qed.
 
-(* Shifting labels of a condition *)
+ (* Shifting labels of a condition *)
 Lemma shift_pc_cond:
   forall v iftrue iffalse sl,
     shift_lbl sl (pc_cond v iftrue iffalse) = pc_cond v (shift_lbl sl iftrue) (shift_lbl sl iffalse).
@@ -859,7 +859,7 @@ Proof.
   destruct o; inv H; inv H1; auto.
   apply H0 in GETRM0. rewrite GETRM0 in GETRM. inv GETRM. auto.
 Qed.
-  
+
 Lemma shift_exprb:
   forall rm e_rm v e sr vsrc,
     eval_expr (shift_expr sr e) rm v ->
@@ -915,7 +915,7 @@ Proof.
   - inv H1. unfold shift_ml in H0. inv H0.
     assert (v=v0) by (eapply shift_exprb; eauto). subst.
     eapply IHml in UPDATE0; eauto. apply shift_rm_insert. auto.
-Qed.  
+Qed.
 
 Lemma shift_deoptb:
   forall sr vm rm_e rm_opt newrm_opt newrm_e,
@@ -930,7 +930,7 @@ Proof.
   - inv H1. unfold shift_vm in H0. rewrite map_cons in H0. unfold shift_expr, shift_op in H0. inv H0.
     eapply IHvm in UPDATE; eauto. subst.
     assert (v=v0) by (eapply shift_exprb; eauto). subst. auto.
-Qed.    
+Qed.
 
 Lemma shift_synthb:
   forall sr p sl rm_e rm_opt stk_opt stk_e,
@@ -959,19 +959,20 @@ Definition srv (v:version) : shift :=
 Definition slv (v:version) : shift :=
   max_lbl_code (ver_code v).
 
-Inductive match_stack (p:program) (caller:version) (callee:version) (call_lbl:label) (args:list expr) (retreg:reg) (next:label) (tgt:deopt_target) (vm:varmap) (sl:list synth_frame) (params:list reg) (abs:abs_state): stack -> stack -> Prop :=
+Inductive match_stack (p:program) (caller:version) (callee:version) (call_lbl:label) (args:list expr) (retreg:reg) (next:label) (tgt:deopt_target) (vm:varmap) (sl:list synth_frame) (params:list reg) (abs:def_abs_state): stack -> stack -> Prop :=
 | ms_nil: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) nil nil
 
-(* Pushing the same stackframe *)
-| ms_same: forall s1 s2 sf
-    (MS: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) s1 s2),
-    (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) (sf::s1) (sf::s2)
+(* Pushing the same stackframe, with an equivalent regmap *)
+| ms_same: forall s1 s2 r v lbl rm rm'
+    (MS: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) s1 s2)
+    (EQ: (regmap_eq rm rm')),
+    (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) ((Stackframe r v lbl rm)::s1) ((Stackframe r v lbl rm')::s2)
 
 (* Replacing stackframes for the caller and caller with a stackframe for the inlined version *)
 (* Useful if a call happens in the middle of the inlined callee *)
 | ms_callee: forall s1 s2 vopt rm_e rm_r rm_opt retreg_e retlbl_e
     (MS: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) s1 s2)
-    (DEF: defined rm_r (absstate_get call_lbl abs)) 
+    (DEF: defined rm_r (def_absstate_get call_lbl abs)) 
     (OPT: inline_version caller callee call_lbl args retreg next tgt vm sl params = OK vopt)
     (SHIFT: shift_rm (srv caller) rm_e rm_opt)
     (AGREE: rm_agree (srv caller) rm_r rm_opt),
@@ -983,7 +984,7 @@ Inductive match_stack (p:program) (caller:version) (callee:version) (call_lbl:la
 (* Useful if a call happens outside of the inlined part *)
 | ms_caller: forall s1 s2 vopt rm_r rm_opt retreg_r retlbl_r
     (MS: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) s1 s2)
-    (DEF: forall retval, defined (rm_r # retreg_r <- retval) (absstate_get retlbl_r abs))
+    (DEF: forall retval, defined (rm_r # retreg_r <- retval) (def_absstate_get retlbl_r abs))
     (OPT: inline_version caller callee call_lbl args retreg next tgt vm sl params = OK vopt)
     (AGREE: rm_agree (srv caller) rm_r rm_opt),
     (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs)
@@ -996,18 +997,19 @@ Inductive match_stack (p:program) (caller:version) (callee:version) (call_lbl:la
 (* Deopt has been done earlier on the opt side: synth frames are here update_regmap has been done *)
 | ms_deopt: forall s1 s2 tgtver rm rmdeopt synth
     (MS: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) s1 s2)
-    (UPDATE: forall retval, update_regmap vm (rm#retreg<-retval) (rmdeopt#retreg<-retval))
+    (UPDATE: forall retval, exists rmdeopt',
+          update_regmap vm (rm#retreg<-retval) rmdeopt' /\ regmap_eq rmdeopt' (rmdeopt#retreg<-retval))
     (SYNTH: forall retval, synthesize_frame p (rm#retreg<-retval) sl synth)
     (FINDBASE: find_base_version (fst tgt) p = Some tgtver), (* should this be checked before optim? *)
     (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs)
       ((Stackframe retreg caller next rm)::s1)
       ((Stackframe retreg tgtver (snd tgt) rmdeopt)::synth ++ s2).
-      
+
 Lemma match_stack_same:
   forall p caller callee call_lbl args retreg next tgt vm sl params abs stk,
     (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) stk stk.
 Proof.
-  intros. induction stk; constructor. auto.
+  intros. induction stk. constructor. destruct a. constructor; auto. apply regmap_eq_refl.
 Qed.
 
 Lemma match_app:
@@ -1017,7 +1019,7 @@ Lemma match_app:
 Proof.
   intros. induction synth.
   - simpl. auto.
-  - repeat rewrite <- app_comm_cons. apply ms_same. auto.
+  - repeat rewrite <- app_comm_cons. destruct a. constructor; auto. apply regmap_eq_refl.
 Qed.
 
 Lemma app_match:
@@ -1028,7 +1030,7 @@ Lemma app_match:
 Proof.
   intros. induction H0.
   - simpl. auto.
-  - repeat rewrite <- app_comm_cons. apply ms_same. auto.
+  - repeat rewrite <- app_comm_cons. apply ms_same; auto.
   - repeat rewrite <- app_comm_cons. apply ms_callee; auto.
   - repeat rewrite <- app_comm_cons. apply ms_caller; auto.
   - rewrite <- app_comm_cons. rewrite <- app_comm_cons. rewrite <- app_assoc. apply ms_deopt; auto.
@@ -1062,46 +1064,47 @@ Qed.
    Inlined deoptimization extra frames is represented in the match_stack invariant.
 
 <<
-                 
+
        st1 --------------- st2
         |                   |
        t|                   |t
         |                   |
         v                   v
        st1'--------------- st2'
-                 
+
 >>
 *)
 
-Inductive match_states (p:program) (caller:version) (callee:version) (call_lbl:label) (args:list expr) (retreg:reg) (next:label) (tgt:deopt_target) (vm:varmap) (sl:list synth_frame) (params:list reg) (abs:abs_state): unit -> state -> state -> Prop :=
+Inductive match_states (p:program) (caller:version) (callee:version) (call_lbl:label) (args:list expr) (retreg:reg) (next:label) (tgt:deopt_target) (vm:varmap) (sl:list synth_frame) (params:list reg) (abs:def_abs_state): unit -> state -> state -> Prop :=
 (* Executing the same code *)
-| refl_match: forall stk stk' v l rm ms
-    (MS: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) stk stk'),
+| refl_match: forall stk stk' v l rm rm' ms
+    (MS: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) stk stk')
+    (EQ : regmap_eq rm rm'),
     (match_states p caller callee call_lbl args retreg next tgt vm sl params abs) tt
       (State stk  v l rm ms)
-      (State stk' v l rm ms)
+      (State stk' v l rm' ms)
 
 (* When the execution is at the caller part of the optimized version *)
 | caller_match: forall stk stk' l ms rm_r rm_opt vopt
     (MS: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) stk stk')
-    (DEF: defined rm_r (absstate_get l abs))
+    (DEF: defined rm_r (def_absstate_get l abs))
     (OPT: inline_version caller callee call_lbl args retreg next tgt vm sl params = OK vopt)
     (AGREE: rm_agree (srv caller) rm_r rm_opt),
-  (match_states p caller callee call_lbl args retreg next tgt vm sl params abs) tt
-    (State stk  caller l rm_r ms)
-    (State stk' vopt l rm_opt ms)
+    (match_states p caller callee call_lbl args retreg next tgt vm sl params abs) tt
+      (State stk  caller l rm_r ms)
+      (State stk' vopt l rm_opt ms)
 
 (* When the execution is at the callee part of the optimized version *)
 (* There is an extra stackframe in the source execution *)
 | callee_match: forall stk stk' l ms rm_r rm_e rm_opt vopt
     (MS: (match_stack p caller callee call_lbl args retreg next tgt vm sl params abs) stk stk')
-    (DEF: defined rm_r (absstate_get call_lbl abs))
+    (DEF: defined rm_r (def_absstate_get call_lbl abs))
     (OPT: inline_version caller callee call_lbl args retreg next tgt vm sl params = OK vopt)
     (AGREE: rm_agree (srv caller) rm_r rm_opt)
     (SHIFT: shift_rm (srv caller) rm_e rm_opt),
-  (match_states p caller callee call_lbl args retreg next tgt vm sl params abs) tt
-    (State ((Stackframe retreg caller next rm_r)::stk) callee l rm_e ms)
-    (State stk' vopt (shift_lbl (slv caller) l) rm_opt ms)
+    (match_states p caller callee call_lbl args retreg next tgt vm sl params abs) tt
+      (State ((Stackframe retreg caller next rm_r)::stk) callee l rm_e ms)
+      (State stk' vopt (shift_lbl (slv caller) l) rm_opt ms)
 
 (* End of the execution *)
 | final_match: forall retval ms,
@@ -1182,7 +1185,7 @@ Proof.
    (fold_left
       (fun (c : PTree.t instruction) (lbli : label * instruction) =>
          c # (shift_lbl (max_lbl_code caller) (fst lbli)) <-
-           (inline_instr (max_reg_code caller) (max_lbl_code caller) retreg retlbl tgt vm sl (snd lbli)))
+         (inline_instr (max_reg_code caller) (max_lbl_code caller) retreg retlbl tgt vm sl (snd lbli)))
       calleelist mixcode) ! (shift_lbl (max_lbl_code caller) l) = Some i ->
    (forall x, In x calleelist -> callee # (fst x) = Some (snd x)) ->
    (mixcode # (shift_lbl (max_lbl_code caller) l) = Some i ->
@@ -1207,8 +1210,8 @@ Proof.
         apply HEQ. apply Pos.add_reg_r in H1. auto. }
   intros. eapply H; eauto.
   - intros. apply PTree.elements_complete. destruct x. simpl. auto.
-  - intros. rewrite no_code_shift in H1. inv H1. 
-Qed. 
+  - intros. rewrite no_code_shift in H1. inv H1.
+Qed.
 
 Lemma callee_code_preserved:
   forall caller callee call_lbl args retreg next tgt vm sl params vopt i l,
@@ -1222,9 +1225,9 @@ Proof.
   unfold inline_version in H. repeat do_ok. inv HDO. unfold param_assign in HDO0. repeat do_ok.
   simpl in H0. rewrite PTree.gso in H0. apply join_code_callee_preserved in H0. auto.
   unfold shift_lbl. unfold caller_lbl in CALLCODE. unfold not. intros.
-  rewrite <- H in CALLCODE. rewrite Pos.le_nlt in CALLCODE. apply CALLCODE. 
+  rewrite <- H in CALLCODE. rewrite Pos.le_nlt in CALLCODE. apply CALLCODE.
   rewrite Pos.add_comm. apply Pos.lt_add_diag_r.
-Qed.  
+Qed.
 
 
 (** * Safety Properties  *)
@@ -1235,7 +1238,7 @@ Lemma safe_caller_lbl:
 Proof.
   intros p s caller rm pc ms H. apply safe_code in H. destruct H.
   eapply is_caller_lbl; eauto. unfold slv. auto.
-Qed.   
+Qed.
 
 (** * Replacing the Call with a Move  *)
 Lemma move_init_agree:
@@ -1253,7 +1256,7 @@ Proof.
     eapply IHargs in HDO; auto.
     apply rm_agree_shift_insert. eauto. auto.
 Qed.
-    
+
 Lemma move_init_shift:
   forall sr movelist args params rm_r rm_opt newrm_opt,
     make_movelist args params sr = OK movelist ->
@@ -1277,16 +1280,16 @@ Proof.
     2: auto. 2: { unfold update_movelist. eauto. }
     destruct HDO as [valist [newrm [EVALL [INIT SHIFT]]]].
     exists (v::valist). exists (newrm # r <- v). split; try split.
-    + constructor; auto. eapply agree_exprb; eauto. 
+    + constructor; auto. eapply agree_exprb; eauto.
     + simpl. rewrite INIT. auto.
-    + apply shift_rm_insert. auto.  
+    + apply shift_rm_insert. auto.
 Qed.
 
 (** * Correctness of deoptimizing in the inlined code  *)
 Lemma fold_and:
-    forall X f (l:list X) start,
-      fold_left (fun b x => andb b (f x)) l start = true ->
-      start = true.
+  forall X f (l:list X) start,
+    fold_left (fun b x => andb b (f x)) l start = true ->
+    start = true.
 Proof.
   intros X f l start H. generalize dependent start. induction l; intros.
   - simpl in H. auto.
@@ -1359,6 +1362,7 @@ Proof.
     apply eval_expr_more; eauto.
 Qed.
 
+(* Correctness of deoptimizing with (retreg<-retreg) at the beginning *)
 Lemma update_deopt_regmap_first:
   forall vm rm_r rm_deopt r v,
     update_regmap ((r, Unexpr Assign (Reg r))::vm) rm_r rm_deopt ->
@@ -1370,20 +1374,217 @@ Proof.
   - apply update_more; auto.
 Qed.
 
+(* If a varmap doesn't use r, neither do its first assignment *)
+Lemma no_use_head:
+  forall r r0 e vm1,
+    varmap_no_use r ((r0,e)::vm1) = true -> reg_neq r r0 = true /\ expr_no_use r e = true.
+Proof.
+  intros. unfold varmap_no_use in H. apply fold_andb_cons in H. destruct H. apply andb_prop in H. auto.
+Qed.
+
+(* If a varmap doesn't use r, neither do its tail *)
+Lemma no_use_tail:
+  forall r r0 e vm1,
+    varmap_no_use r ((r0,e)::vm1) = true -> varmap_no_use r vm1 = true.
+Proof.
+  intros. unfold varmap_no_use in H. apply fold_andb_cons in H.
+  unfold varmap_no_use. destruct H. auto.
+Qed.
+
+(* If a varmap which captures retreg doesn't have (retreg<-retreg) in its head, it has in its tail *)
+Lemma capture_retreg_not_first:
+  forall a vm r,
+    check_varmap_capture_retreg (a::vm) r = true ->
+    check_reconstructed r a = false ->
+    check_varmap_capture_retreg vm r = true.
+Proof.
+  intros. unfold check_varmap_capture_retreg. unfold check_varmap_capture_retreg in H. simpl in H. rewrite H0 in H. auto. 
+Qed.
+
+(* If a varmap doesn't use retreg, it has at most once (retreg<-retreg) *)
+Lemma no_use_only_once:
+  forall vm r,
+    varmap_no_use r vm = true -> check_varmap_only_once vm r = true.
+Proof.
+  induction vm; intros; auto.
+  unfold varmap_no_use in H. apply fold_andb_cons in H.
+  destruct H. unfold check_varmap_only_once. apply orb_true_intro. right.
+  rewrite H. simpl. apply IHvm. auto.
+Qed.
+
+(* If a varmap has at most once (retreg<-retreg), its tail too *)
+Lemma only_once_first:
+  forall a vm r,
+    check_varmap_only_once (a :: vm) r = true ->
+    check_varmap_only_once vm r = true.
+Proof.
+  intros. unfold check_varmap_only_once in H. apply orb_prop in H. destruct H.
+  - apply andb_prop in H. destruct H. apply no_use_only_once. auto.
+  - unfold check_varmap_only_once. apply andb_prop in H. destruct H. auto.
+Qed.
+
+(* If a varmap has at most once (retreg<-retreg) and its head is (retreg<-retreg) then the tail doesn't use r *)
+Lemma only_once_no_use:
+  forall a vm r,
+    check_varmap_only_once (a :: vm) r = true ->
+    check_reconstructed r a = true ->
+    varmap_no_use r vm = true.
+Proof.
+  intros. unfold check_varmap_only_once in H. rewrite H0 in H. simpl in H.
+  assert (H1 : reg_neq r (fst a) = false).
+  {
+    unfold check_reconstructed in H0. destruct a. simpl. unfold reg_neq.
+    rewrite Pos.eqb_sym.
+    poseq_destr r0 r.
+    + auto.
+    + inv H0.
+  }
+  rewrite H1 in H. simpl in H. rewrite orb_false_r in H. auto.
+Qed.
+
+(* If we take a varmap which verifies the hypotheses of check_vm for the retreg r, if its first assignment is not (r<-r) then it doesn't use r *)
+Lemma ifnot_reconstructed_then_no_use:
+  forall a vm r,
+    check_varmap_capture_retreg (a :: vm) r = true ->
+    check_varmap_only_once (a :: vm) r = true ->
+    check_reconstructed r a = false ->
+    reg_neq r (fst a) = true /\ expr_no_use r (snd a) = true.
+Proof.
+  intros. split.
+  - unfold check_varmap_only_once in H0.
+    apply orb_prop in H0. destruct H0. rewrite H1 in H0. inv H0.
+    apply andb_prop in H0. destruct H0. apply andb_prop in H0. destruct H0. auto.
+  - unfold check_varmap_only_once in H0.
+    apply orb_prop in H0. destruct H0. rewrite H1 in H0. inv H0.
+    apply andb_prop in H0. destruct H0. apply andb_prop in H0. destruct H0. auto.
+Qed.
+
+(* Each varmap which verifies the hypotheses of check_vm is well formed, i.e. of the form :
+        
+       [  vm1  ] (retreg<-retreg) [  vm2  ]
+
+where vm1 and vm2 are two regmaps which doesn't use retreg. *)
+Lemma well_formed_regmap:
+  forall vm r,
+    check_varmap_capture_retreg vm r = true ->
+    check_varmap_only_once vm r = true ->
+    exists vm1 vm2,
+      vm = vm1 ++ (r, Unexpr Assign (Reg r))::vm2 /\
+      varmap_no_use r vm1 = true /\
+      varmap_no_use r vm2 = true.
+Proof.
+  induction vm; intros. inv H.
+  case_eq (check_reconstructed r a).
+  + exists nil. exists vm. simpl. split.
+    * destruct a.
+      unfold check_reconstructed in H1.
+      poseq_destr r0 r.
+      ** destruct e. inv H1.
+         destruct u; inv H1. destruct o; inv H3.
+         apply Peqb_true_eq in H2. rewrite H2. auto. 
+      ** inv H1.
+    * apply only_once_no_use in H0; auto.
+  + intros. apply ifnot_reconstructed_then_no_use in H as NOT_REC_NO_USE; auto. destruct NOT_REC_NO_USE. apply capture_retreg_not_first in H; auto. apply only_once_first in H0.
+    specialize (IHvm r). rewrite H in IHvm. rewrite H0 in IHvm.
+    destruct IHvm; auto. destruct H4.
+    exists (a::x). exists x0. split.
+    * rewrite <- app_comm_cons. destruct H4. rewrite H4. auto.
+    * destruct H4. split.
+      ** destruct H5. destruct a. unfold varmap_no_use. simpl. simpl in H2. rewrite H2. simpl in H3. rewrite H3. simpl. unfold varmap_no_use in H5. auto. 
+      ** destruct H5. auto.      
+Qed.
+
+(* If a varmap with (retreg<-retreg) in the middle deoptimize from rm_r to rm_deopt,
+   the same varmap with (retreg<-retreg) at the beginning will deoptimize from rm_r to a regmap equivalent to rm_deopt. *)
+Lemma middle_to_first:
+  forall vm1 vm2 rm_r rm_deopt r,
+    varmap_no_use r vm1 = true ->
+    varmap_no_use r vm2 = true ->
+    update_regmap (vm1 ++ (r, (Unexpr Assign (Reg r)))::vm2) rm_r rm_deopt ->
+    exists rm_deopt',
+      update_regmap ((r, (Unexpr Assign (Reg r)))::(vm1 ++ vm2)) rm_r rm_deopt' /\
+      regmap_eq rm_deopt' rm_deopt.
+Proof.
+  induction vm1.
+  - intros. exists rm_deopt. split. auto. apply regmap_eq_refl.
+  - intros. inv H1. apply IHvm1 in UPDATE; auto.
+    + destruct UPDATE as [rm_deopt']. destruct H1. inv H1.
+      exists (rm'0 # r0 <- v) # r <- v0. split.
+      * apply update_cons. auto. rewrite <- app_comm_cons. apply update_cons; auto.
+      * apply regmap_eq_trans with (rm'0 # r <- v0) # r0 <- v.
+        apply regmap_eq_comm. apply regmap_eq_refl.
+        apply no_use_head in H. destruct H. unfold reg_neq. rewrite Pos.eqb_sym. unfold reg_neq in H. auto.        
+      apply regmap_eq_insert. auto.      
+    + apply no_use_tail in H. auto.
+Qed.
+
+(* If a varmap with (retreg<-retreg) at the beginning deoptimize from rm_r to rm_deopt,
+   the same varmap with (retreg<-retreg) in the middle will deoptimize from rm_r to a regmap equivalent to rm_deopt. *)
+Lemma first_to_middle:
+  forall vm1 vm2 rm_r rm_deopt r,
+    varmap_no_use r vm1 = true ->
+    varmap_no_use r vm2 = true ->
+    update_regmap ((r, (Unexpr Assign (Reg r)))::(vm1 ++ vm2)) rm_r rm_deopt ->
+    exists rm_deopt',
+      update_regmap (vm1 ++ (r, (Unexpr Assign (Reg r)))::vm2) rm_r rm_deopt' /\
+      regmap_eq rm_deopt' rm_deopt.
+Proof.
+  induction vm1.
+  - intros. exists rm_deopt. simpl. simpl in H0. split. auto. apply regmap_eq_refl.
+  - intros. inv H1. inv UPDATE. rewrite <- app_comm_cons.
+    apply update_cons with r (Unexpr Assign (Reg r)) (vm1 ++ vm2) v rm_r rm'0 in UPDATE0; auto.
+    apply no_use_tail in H as H'.
+    specialize (IHvm1 vm2).
+    apply IHvm1 with rm_r (rm'0 # r <- v) r in H'; auto.
+    destruct H' as [rm_deopt']. destruct H1. exists rm_deopt' # r0 <- v0. split.
+      * apply update_cons; auto.
+      * apply regmap_eq_trans with (rm'0 # r <- v) # r0 <- v0.
+        ** apply regmap_eq_insert. auto.
+        ** apply regmap_eq_comm. apply regmap_eq_refl.
+           apply no_use_head in H. destruct H. auto. 
+Qed.
+
+(* Correctness of deoptimizing, even with (retreg<-retreg) in the middle of the varmap *)
+Lemma update_deopt_regmap_middle:
+  forall vm1 vm2 rm_r rm_deopt r v,
+    update_regmap (vm1 ++ (r, (Unexpr Assign (Reg r)))::vm2) rm_r rm_deopt ->
+    varmap_no_use r vm1 = true ->
+    varmap_no_use r vm2 = true ->
+    exists rm_deopt',
+      update_regmap (vm1 ++ (r, (Unexpr Assign (Reg r)))::vm2) (rm_r # r <- v) rm_deopt' /\
+      regmap_eq rm_deopt' (rm_deopt # r <- v).
+Proof.
+  intros. apply middle_to_first with vm1 vm2 rm_r rm_deopt r in H0 as UPD_FIRST; auto.
+  destruct UPD_FIRST as [rm_deopt'1]. destruct H2. eapply update_deopt_regmap_first in H2.
+  - eapply first_to_middle in H2; auto. destruct H2 as [rm_deopt'2]. exists rm_deopt'2. split.
+    + destruct H2. eauto.
+    + apply regmap_eq_trans with rm_deopt'1 # r <- v. destruct H2. auto.
+      apply regmap_eq_insert. auto.
+  - unfold varmap_no_use. rewrite fold_left_app. unfold varmap_no_use in H0. rewrite H0. auto.
+Qed.
+
+(* Final theorem with check_vm
+   Deoptimizing from inlined code creates a stackframe of the callee function, whatever the result of the inlined function is. *)
 Lemma update_deopt_regmap:
   forall vm rm_r rm_deopt retreg def,
     update_regmap vm rm_r rm_deopt ->
     check_vm vm retreg def = OK tt ->
-    forall retval, update_regmap vm (rm_r # retreg <- retval) (rm_deopt # retreg <- retval) .
+    forall retval, exists rm_deopt',
+        update_regmap vm (rm_r # retreg <- retval) rm_deopt' /\
+        regmap_eq rm_deopt' (rm_deopt # retreg <- retval).
 Proof.
-  intros. unfold check_vm in H0. destruct def eqn:DEF; inv H0.
+  intros. unfold check_vm in H0.
+  destruct def eqn:DEF; inv H0.
   destruct (check_varmap_progress vm r) eqn:PROGRESS; inv H2.
-  destruct vm as [|re vm']; inv H1.
-  destruct (check_reconstructed retreg re) eqn:RECONS; inv H2.
-  destruct (varmap_no_use retreg vm') eqn:NO_USE; inv H1.
-  unfold check_reconstructed in RECONS. destruct re.
-  poseq_destr r0 retreg; inv RECONS. destruct e; try destruct u; destruct o; inv H1.
-  apply Pos.eqb_eq in H2. subst. apply update_deopt_regmap_first; auto.
+  destruct (check_varmap_capture_retreg vm retreg) eqn:CAPTURE; inv H1.
+  destruct (check_varmap_only_once vm retreg) eqn:ONCE; inv H2.
+  assert (H0 : exists vm1 vm2,
+             vm = vm1 ++ (retreg, Unexpr Assign (Reg retreg))::vm2 /\
+             varmap_no_use retreg vm1 = true /\ varmap_no_use retreg vm2 = true).
+  { apply well_formed_regmap; auto. }
+  destruct H0 as [vm1]. destruct H0 as [vm2]. destruct H0. rewrite H0. destruct H1.
+  apply update_deopt_regmap_middle; auto.
+  rewrite <- H0. auto.
 Qed.
 
 Lemma app_synthsized:
@@ -1396,7 +1597,7 @@ Proof.
   - inv H. simpl. auto.
   - inv H. apply IHsl1 in SYNTH. simpl. constructor; auto.
 Qed.
-    
+
 Lemma synthesized_app:
   forall p rm sl1 sl2 s,
     synthesize_frame p rm (sl1 ++ sl2) s ->
@@ -1416,7 +1617,7 @@ Qed.
 (** * Progress preservation  *)
 Lemma evaluate_op:
   forall rm rs op,
-    defined rm (FlatRegset.Inj rs) ->
+    defined rm (DefFlatRegset.Inj rs) ->
     check_op op rs = true ->
     exists v, eval_op op rm v.
 Proof.
@@ -1428,7 +1629,7 @@ Qed.
 
 Lemma evaluate_expr:
   forall rm rs e,
-    defined rm (FlatRegset.Inj rs) ->
+    defined rm (DefFlatRegset.Inj rs) ->
     check_expr e rs = true ->
     exists v, eval_expr e rm v.
 Proof.
@@ -1442,7 +1643,7 @@ Qed.
 
 Lemma evaluate_succeeds:
   forall rm rs vm,
-    defined rm (FlatRegset.Inj rs) ->
+    defined rm (DefFlatRegset.Inj rs) ->
     check_varmap_progress vm rs = true ->
     exists newrm, update_regmap vm rm newrm.
 Proof.
@@ -1479,7 +1680,7 @@ Proof.
   intros caller callee call_lbl args retreg next tgt vm sl params vopt l i INLINE DIFF CODE.
   unfold inline_version in INLINE. repeat do_ok. inv HDO. unfold param_assign in HDO0. repeat do_ok.
   simpl. rewrite PTree.gso; auto. apply preserved_join_code_caller; auto.
-Qed.  
+Qed.
 
 Lemma replaced_call_move:
   forall caller callee call_lbl args retreg next tgt vm sl params vopt,
@@ -1516,8 +1717,8 @@ Lemma preserved_join_code_callee:
 Proof.
   intros. unfold join_code.
   assert (list_norepet (map fst (PTree.elements callee))) by apply PTree.elements_keys_norepet.
-  apply PTree.elements_correct in H. generalize dependent caller. 
-  
+  apply PTree.elements_correct in H. generalize dependent caller.
+
   induction (PTree.elements callee); intros; inv H.
   - simpl. simpl in H0. inv H0.
     apply folded_already.
@@ -1575,7 +1776,7 @@ Lemma  progress_preserved:
     find_function fid p = Some callee_f ->
     callee = current_version callee_f ->
     check_synth_list sl = OK tt ->
-    check_vm vm retreg (absstate_get call_lbl abs) = OK tt ->
+    check_vm vm retreg (def_absstate_get call_lbl abs) = OK tt ->
     check_tgt tgt p = OK tt ->
     (match_states p caller callee call_lbl args retreg next tgt vm sl params abs) tt s1 s2 ->
     safe (specir_sem p) s1 ->
@@ -1588,49 +1789,53 @@ Proof.
   - right. apply safe_step in SAFE as [s1' [t STEP]]. (* refl_match *)
     inv STEP.
     { inv STEP0.
-      - exists E0. exists (State stk' v next0 rm ms). apply nd_exec_lowered. eapply exec_Nop; eauto.
-      - exists E0. exists (State stk' v next0 (rm#reg<-v0) ms). apply nd_exec_lowered. eapply exec_Op; eauto.
-      - exists E0. exists (State stk' v next0 newrm ms). apply nd_exec_lowered. eapply exec_Move; eauto.
-      - exists E0. exists (State stk' v (pc_cond v0 iftrue iffalse) rm ms). apply nd_exec_lowered.
-        eapply exec_Cond; eauto.
+      - exists E0. exists (State stk' v next0 rm' ms). apply nd_exec_lowered. eapply exec_Nop; eauto.
+      - exists E0. exists (State stk' v next0 (rm'#reg<-v0) ms). apply nd_exec_lowered. eapply exec_Op; eauto. eapply eval_expr_eq; eauto.
+      - exists E0. assert (NEWUPDATE : exists newrm' : reg_map, update_movelist ml rm' newrm' /\ regmap_eq newrm' newrm).
+        { eapply update_movelist_eq; eauto. apply regmap_eq_sym. auto. }
+        destruct NEWUPDATE as [newrm']. exists (State stk' v next0 newrm' ms). apply nd_exec_lowered. eapply exec_Move; eauto. destruct H. auto.
+      - exists E0. exists (State stk' v (pc_cond v0 iftrue iffalse) rm' ms). apply nd_exec_lowered.
+        eapply exec_Cond; eauto. eapply eval_expr_eq; eauto.
       - poseq_destr fid fidoptim.
-        + exists E0. exists (State (Stackframe retreg0 v next0 rm::stk') (current_version (set_version_function vopt caller_f)) (ver_entry (current_version (set_version_function vopt caller_f))) newrm ms).
+        + exists E0. exists (State (Stackframe retreg0 v next0 rm'::stk') (current_version (set_version_function vopt caller_f)) (ver_entry (current_version (set_version_function vopt caller_f))) newrm ms).
           apply nd_exec_lowered. eapply exec_Call; eauto.
-          simpl. erewrite find_function_same; eauto.
+          simpl. erewrite find_function_same; eauto. eapply eval_list_eq; eauto.
           unfold set_version_function. simpl. simpl in FINDF. rewrite FINDOPTF in FINDF. inv FINDF. auto.
-        + exists E0. exists (State (Stackframe retreg0 v next0 rm::stk') (current_version func) (ver_entry (current_version func)) newrm ms).
+        + exists E0. exists (State (Stackframe retreg0 v next0 rm'::stk') (current_version func) (ver_entry (current_version func)) newrm ms).
           apply nd_exec_lowered. eapply exec_Call; eauto.
-          simpl. rewrite <- find_function_unchanged; auto.
+          simpl. rewrite <- find_function_unchanged; auto. eapply eval_list_eq; eauto.
       - inv MS.
-        + exists E0. exists (State s2 fprev next0 (rmprev#retreg0<-retval) ms). apply nd_exec_lowered.
-          eapply exec_Return; eauto.
+        + exists E0. exists (State s2 fprev next0 (rm'0#retreg0<-retval) ms). apply nd_exec_lowered.
+          eapply exec_Return; eauto. eapply eval_expr_eq; eauto.
         + exists E0. exists (State s2 vopt0 (shift_lbl (slv (current_version caller_f)) next0) rm_opt#(shift_reg (srv (current_version caller_f)) retreg0)<-retval ms).
-          apply nd_exec_lowered. eapply exec_Return; eauto.
+          apply nd_exec_lowered. eapply exec_Return; eauto. eapply eval_expr_eq; eauto.
         + exists E0. exists (State s2 vopt0 next0 (rm_opt#retreg0<-retval) ms). apply nd_exec_lowered.
-          eapply exec_Return; eauto.
+          eapply exec_Return; eauto. eapply eval_expr_eq; eauto.
         + exists E0. exists (State (synth++s2) tgtver (snd tgt) (rmdeopt#retreg0<-retval) ms). apply nd_exec_lowered.
-          eapply exec_Return; eauto.
-      - inv MS. exists E0. exists (Final retval ms). apply nd_exec_lowered. eapply exec_Return_Final; eauto.
-      - exists (Valprint printval::E0). exists (State stk' v next0 rm ms). apply nd_exec_lowered.
-        eapply exec_Printexpr; eauto.
-      - exists (Stringprint str::E0). exists (State stk' v next0 rm ms). apply nd_exec_lowered.
+          eapply exec_Return; eauto. eapply eval_expr_eq; eauto.
+      - inv MS. exists E0. exists (Final retval ms). apply nd_exec_lowered. eapply exec_Return_Final; eauto. eapply eval_expr_eq; eauto.
+      - exists (Valprint printval::E0). exists (State stk' v next0 rm' ms). apply nd_exec_lowered.
+        eapply exec_Printexpr; eauto. eapply eval_expr_eq; eauto.
+      - exists (Stringprint str::E0). exists (State stk' v next0 rm' ms). apply nd_exec_lowered.
         eapply exec_Printstring; eauto.
-      - exists E0. exists (State stk' v next0 rm newms). apply nd_exec_lowered. eapply exec_Store; eauto.
-      - exists E0. exists (State stk' v next0 (rm#reg<-val) ms). apply nd_exec_lowered. eapply exec_Load; eauto.
-      - exists E0. exists (State stk' v next0 rm ms). apply nd_exec_lowered. eapply exec_Assume_holds; eauto.
+      - exists E0. exists (State stk' v next0 rm' newms). apply nd_exec_lowered. eapply exec_Store; eauto. eapply eval_expr_eq; eauto. eapply eval_expr_eq; eauto.
+      - exists E0. exists (State stk' v next0 (rm'#reg<-val) ms). apply nd_exec_lowered. eapply exec_Load; eauto. eapply eval_expr_eq; eauto.
+      - exists E0. exists (State stk' v next0 rm' ms). apply nd_exec_lowered. eapply exec_Assume_holds; eauto. eapply eval_list_expr_eq; eauto.
       - exists E0. exists (State (synth++stk') newver la newrm ms). apply nd_exec_lowered.
-        eapply exec_Assume_fails; eauto. simpl. rewrite <- base_version_unchanged. auto.
-        apply synth_frame_unchanged. auto.
+        eapply exec_Assume_fails; eauto. eapply eval_list_expr_eq; eauto.
+        simpl. rewrite <- base_version_unchanged. auto.
+        eapply update_regmap_eq; eauto. apply regmap_eq_sym; auto. 
+        apply synth_frame_unchanged. simpl in SYNTH. eapply synthesize_frame_eq; eauto. apply regmap_eq_sym. auto.
     }
-    + exists E0. exists (State stk' v next0 rm ms). inv DEOPT_COND.
+    + exists E0. exists (State stk' v next0 rm' ms). inv DEOPT_COND.
       eapply nd_exec_Framestate_go_on. econstructor; eauto.
-      simpl. rewrite <- base_version_unchanged. eauto.
-      apply synth_frame_unchanged. eauto.
-    + exists E0. exists (State stk' v next0 rm ms). inv DEOPT_COND.
+      simpl. rewrite <- base_version_unchanged. eauto. eapply update_regmap_eq; eauto. apply regmap_eq_sym. auto.
+      apply synth_frame_unchanged. simpl in SYNTH. eapply synthesize_frame_eq; eauto. apply regmap_eq_sym. auto.
+    + exists E0. exists (State stk' v next0 rm' ms). inv DEOPT_COND.
       eapply nd_exec_Framestate_go_on. econstructor; eauto.
-      simpl. rewrite <- base_version_unchanged. eauto.
-      apply synth_frame_unchanged. eauto.
-    
+      simpl. rewrite <- base_version_unchanged. eauto. eapply update_regmap_eq; eauto. apply regmap_eq_sym. auto. 
+      apply synth_frame_unchanged. simpl in SYNTH. eapply synthesize_frame_eq; eauto. apply regmap_eq_sym. auto.
+
   - right. rewrite OPT in INLINEV. inv INLINEV. apply safe_step in SAFE as [s1' [t STEP]]. (* caller_match *)
     poseq_destr l call_lbl.
     + exists E0. apply replaced_call_move in OPT as [movelist [MAKE CODEMOVE]].
@@ -1663,7 +1868,7 @@ Proof.
         - eapply agree_expr in EVAL; eauto.
           2: { clear HEQ. eapply is_caller_expr; eauto. unfold srv; auto. simpl. left. auto. }
           inv MS.
-          + exists E0. exists (State s2 fprev next0 (rmprev#retreg0<-retval) ms). apply nd_exec_lowered.
+          + exists E0. exists (State s2 fprev next0 (rm'#retreg0<-retval) ms). apply nd_exec_lowered.
             eapply exec_Return; eauto.
           + exists E0. exists (State s2 vopt0 (shift_lbl (slv (current_version caller_f)) next0) rm_opt0#(shift_reg (srv (current_version caller_f)) retreg0)<-retval ms).
             apply nd_exec_lowered. eapply exec_Return; eauto.
@@ -1707,13 +1912,13 @@ Proof.
         eapply rm_agree_regmap; eauto. clear HEQ. eapply is_caller_varmap_fs; eauto. unfold srv. auto.
         simpl. apply synth_frame_unchanged. eapply rm_agree_synth; eauto. clear HEQ.
         eapply is_caller_synth_list_fs; eauto. unfold srv. auto.
-    
+
   - right. rewrite OPT in INLINEV. inv INLINEV. (* callee_match *)
     apply safe_step in SAFE as [s1' [t STEP]].
     set (caller := current_version caller_f). fold caller in SHIFT, AGREE, MS, OPT, STEP, CALLCODE.
     set (callee := current_version callee_f). fold callee in MS, OPT, STEP.
     inv STEP.
-    { inv STEP0; eapply preserved_callee_code in CODE; eauto; unfold inline_instr, transf_instr, replace_return, stackframe_synthesis in CODE. 
+    { inv STEP0; eapply preserved_callee_code in CODE; eauto; unfold inline_instr, transf_instr, replace_return, stackframe_synthesis in CODE.
       - exists E0. simpl in CODE. exists (State stk' vopt (shift_lbl (slv caller) next0) rm_opt ms).
         apply nd_exec_lowered. eapply exec_Nop; eauto.
       - exists E0. exists (State stk' vopt (shift_lbl (slv caller) next0) (rm_opt#(shift_reg (srv caller) reg)<-v) ms).
@@ -1732,7 +1937,7 @@ Proof.
           eapply eval_list_callee; eauto.
         + exists (State (Stackframe (shift_reg (srv caller) retreg0) vopt (shift_lbl (slv caller) next0) rm_opt::stk') (current_version func) (ver_entry (current_version func)) newrm ms).
           apply nd_exec_lowered. eapply exec_Call; eauto. simpl. rewrite <- find_function_unchanged; auto.
-          eapply eval_list_callee; eauto.          
+          eapply eval_list_callee; eauto.
       - exists E0. exists (State stk' vopt next (rm_opt#(retreg)<-retval) ms). (* going back to the caller part *)
         apply nd_exec_lowered. eapply exec_Op; eauto. eapply eval_expr_callee; eauto.
       - exists (Valprint printval::E0). exists (State stk' vopt (shift_lbl (slv caller) next0) rm_opt ms).
@@ -1750,7 +1955,7 @@ Proof.
       - exists E0. destruct sl. 2: { inv SLCHECK. }
         assert (H: exists newrm',
                    update_regmap vm rm_r newrm').
-        { unfold check_vm in VMCHECK. destruct (absstate_get call_lbl abs) eqn:RS; inv VMCHECK.
+        { unfold check_vm in VMCHECK. destruct (def_absstate_get call_lbl abs) eqn:RS; inv VMCHECK.
           destruct (check_varmap_progress vm r) eqn:PROGRESS; inv H0. 
           eapply evaluate_succeeds; eauto. }
         destruct H as [newrm' UP]. unfold check_tgt in TGTCHECK.
@@ -1771,7 +1976,7 @@ Proof.
       exists E0. destruct sl. 2: { inv SLCHECK. }
       assert (H: exists newrm',
                  update_regmap vm rm_r newrm').
-      { unfold check_vm in VMCHECK. destruct (absstate_get call_lbl abs) eqn:RS; inv VMCHECK.
+      { unfold check_vm in VMCHECK. destruct (def_absstate_get call_lbl abs) eqn:RS; inv VMCHECK.
         destruct (check_varmap_progress vm r) eqn:PROGRESS; inv H0. 
         eapply evaluate_succeeds; eauto. }
       destruct H as [newrm' UP]. unfold check_tgt in TGTCHECK.
@@ -1791,7 +1996,7 @@ Proof.
       exists E0. destruct sl. 2: { inv SLCHECK. }
       assert (H: exists newrm',
                  update_regmap vm rm_r newrm').
-      { unfold check_vm in VMCHECK. destruct (absstate_get call_lbl abs) eqn:RS; inv VMCHECK.
+      { unfold check_vm in VMCHECK. destruct (def_absstate_get call_lbl abs) eqn:RS; inv VMCHECK.
         destruct (check_varmap_progress vm r) eqn:PROGRESS; inv H0. 
         eapply evaluate_succeeds; eauto. }
       destruct H as [newrm' UP]. unfold check_tgt in TGTCHECK.
@@ -1805,8 +2010,8 @@ Proof.
       * simpl globalenv. apply synth_frame_unchanged.
         apply app_synthsized. eapply synth_callee; eauto.
         eapply rm_agree_synth; eauto. constructor. 2: constructor. unfold caller_synth_frame.
-        simpl. eapply is_caller_varmap_fs; unfold srv; eauto. 
-    
+        simpl. eapply is_caller_varmap_fs; unfold srv; eauto.
+
   - left. exists retval. constructor.
 Qed.
 
@@ -1818,7 +2023,7 @@ Ltac agreeb :=
   | [H: eval_list_expr ?expr ?rm_opt ?v,
         H1: rm_agree ?s ?rm_r ?rm_opt |- _] => eapply agree_list_exprb in H; eauto; try eapply is_caller_list_expr; eauto; try constructor; auto
   | [H: eval_list ?expr ?rm_opt ?v,
-        H1: rm_agree ?s ?rm_r ?rm_opt |- _] => eapply agree_listb in H; eauto; try eapply is_caller_list_expr; eauto; try constructor; auto                                                                                                            
+        H1: rm_agree ?s ?rm_r ?rm_opt |- _] => eapply agree_listb in H; eauto; try eapply is_caller_list_expr; eauto; try constructor; auto
   end.
 
 
@@ -1834,7 +2039,7 @@ Proof.
   rename d into tgt. rename v into vm. rename l into sl. rename l0 into nextfs.
   repeat do_ok. rename f0 into callee_f. rename f into caller_f. rename HDO4 into OPT.
   rename HDO0 into SL_CHECK. rename HDO1 into VM_CHECK. destruct u. destruct u0. destruct u1.
-  rename HDO2 into TGT_CHECK. rename HDO3 into DEFS. rename HDO5 into FIND_E. rename a into abs.
+  rename HDO2 into TGT_CHECK. rename HDO3 into DEFS. rename HDO5 into FIND_E. rename d into abs.
   set (caller := current_version (caller_f)). fold caller in CALL_CODE, FS_CODE, OPT.
   set (callee := current_version (callee_f)). fold callee in OPT.
   set (params := (fn_params callee_f)). fold params in OPT. rename v into vopt.
@@ -1851,23 +2056,24 @@ Proof.
         repeat (esplit; eauto). rewrite current_version_same. rewrite SAME_ENTRY.
         rewrite FINDOPTF in HDO1. inv HDO1.
         eapply caller_match; auto. apply match_stack_same.
-        apply interpreter_proof.init_regs_correct in HDO0. eapply analyze_init; eauto.
+        apply interpreter_proof.init_regs_correct in HDO0. eapply def_analyze_init; eauto.
         apply rm_agree_refl.
       * erewrite <- find_function_unchanged; eauto. rewrite HDO1. simpl. rewrite HDO0. simpl.
-        repeat (esplit; eauto). constructor. apply match_stack_same.
+        repeat (esplit; eauto). constructor. apply match_stack_same. apply regmap_eq_refl.
     + destruct stack; try destruct s; inv FORGE.
       * repeat (esplit; eauto). constructor.
       * repeat (esplit; eauto). simpl. constructor. apply match_stack_same.
+        apply regmap_eq_insert. apply regmap_eq_refl.
     + destruct d. repeat do_ok. simpl. rewrite <- base_version_unchanged. rewrite HDO0. simpl.
-      repeat (esplit; eauto). simpl. constructor. apply match_stack_same.
-    + inv FORGE. destruct r1; repeat (esplit; eauto). 
-      * simpl. apply refl_match. apply match_stack_same.
+      repeat (esplit; eauto). simpl. constructor. apply match_stack_same. apply regmap_eq_refl.
+    + inv FORGE. destruct r1; repeat (esplit; eauto).
+      * simpl. apply refl_match. apply match_stack_same. apply regmap_eq_refl.
       * simpl. apply final_match.
 
   - intros i s1 s2 r H H0 H1. inv H1. inv H. exists (Final r ms). split.
     apply star_refl. constructor.
 
-  - intros. destruct i. eapply progress_preserved; eauto. 
+  - intros. destruct i. eapply progress_preserved; eauto.
 
   - intros s2 t s2' STEP i s1 MATCH SAFE. exists tt. (* Backward diagram *)
     inv MATCH.
@@ -1876,84 +2082,88 @@ Proof.
       { inv STEP0.
         - exists (State stk v next0 rm ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Nop; eauto.
-          + apply refl_match. auto.
+          + apply refl_match; auto.
         - exists (State stk v next0 (rm#reg<-v0) ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Op; eauto.
-          + apply refl_match. auto.
-        - exists (State stk v next0 newrm ms). split.
-          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Move; eauto.
-          + apply refl_match; auto.
+            eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto.
+          + apply refl_match. auto. apply regmap_eq_insert. auto.
+        - assert (NEWUPDATE : exists newrm' : reg_map, update_movelist ml rm newrm' /\ regmap_eq newrm' newrm).
+          + eapply update_movelist_eq; eauto.
+          + destruct NEWUPDATE as [newrm']. destruct H. exists (State stk v next0 newrm' ms). split.
+            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Move; eauto.
+            * apply refl_match; auto.
         - exists (State stk v (pc_cond v0 iftrue iffalse) rm ms). split.
-          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Cond; eauto.
-          + apply refl_match. auto.
+          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Cond; eauto. eapply eval_expr_eq; eauto. apply regmap_eq_sym; auto. 
+          + apply refl_match; auto.
         - poseq_destr fid0 fidoptim; simpl in FINDF.
           + erewrite find_function_same in FINDF; eauto. inv FINDF. (* calling optimized caller function *)
             exists (State (Stackframe retreg0 v next0 rm ::stk) (current_version caller_f) (ver_entry (current_version caller_f)) newrm ms). split.
-            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.
+            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto. eapply eval_list_eq; eauto. apply regmap_eq_sym; auto. 
             * rewrite current_version_same. rewrite SAME_ENTRY. apply caller_match; auto.
-              apply ms_same. auto. 
-              eapply analyze_init; eauto.
+              apply ms_same; auto. 
+              eapply def_analyze_init; eauto.
               apply rm_agree_refl. 
           + rewrite <- find_function_unchanged in FINDF; auto. (* calling any other function *)
             exists (State (Stackframe retreg0 v next0 rm :: stk) (current_version func) (ver_entry (current_version func)) newrm ms). split.
-            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.
-            * apply refl_match. apply ms_same. auto.
+            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto. eapply eval_list_eq; eauto. apply regmap_eq_sym. auto. 
+            * apply refl_match. apply ms_same; auto. apply regmap_eq_refl.
         - inv MS.
-          + exists (State s1 fprev next0 (rmprev#retreg0<-retval) ms). split. (* ms_same *)
-            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Return; eauto.
-            * apply refl_match. auto.
+          + exists (State s1 fprev next0 (rm0#retreg0<-retval) ms). split. (* ms_same *)
+            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Return; eauto. eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto.
+            * apply refl_match. auto. apply regmap_eq_insert. auto.
           + exists (State (Stackframe retreg caller next rm_r ::s1) callee retlbl_e (rm_e # retreg_e <- retval) ms). split. (* ms_callee *)
-            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Return; eauto.
-            * apply callee_match; auto. 
+            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Return; eauto. eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto.
+            * apply callee_match; auto.
               apply rm_agree_shift_insert. auto. apply shift_rm_insert. auto.
           + exists (State s1 caller next0 (rm_r # retreg0 <- retval) ms). split. (* ms_caller *)
-            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Return; eauto.
+            * left. apply plus_one. apply nd_exec_lowered. eapply exec_Return; eauto. eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto. 
             * apply caller_match; auto.
               apply rm_agree_insert. auto.
           + destruct tgt as [fidtgt lbltgt]. simpl. simpl in FINDBASE. (* ms_deopt *)
+            destruct UPDATE with retval as [rmdeopt UPDATE']. destruct UPDATE'.
+            exists (State (synth++s1) (*no*) fprev lbltgt rmdeopt ms). split.
             (* Since deoptimization occurred in the inlined part, when returning *)
             (* from the inlined function in the source execution, we must deoptimize *)
             (* using the Framestate after the inlined Call *)
-            exists (State (synth++s1) fprev lbltgt (rmprev#retreg0<-retval) ms). split.
             * left. eapply plus_two.
-              ** apply nd_exec_lowered. eapply exec_Return; eauto.
+              ** apply nd_exec_lowered. eapply exec_Return; eauto. eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto.
               ** { eapply nd_exec_Framestate_deopt. econstructor.
                    - apply FS_CODE.
                    - apply FINDBASE.
-                   - apply UPDATE.
+                   - apply H.
                    - apply SYNTH. }
               ** auto.
-            * apply refl_match. apply match_app. auto.
+            * apply refl_match; auto. apply match_app. auto.
         - inv MS. exists (Final retval ms). split.
-          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Return_Final; eauto.
+          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Return_Final; eauto. eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto.
           + apply final_match.
         - exists (State stk v next0 rm ms). split.
-          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Printexpr; eauto.
-          + apply refl_match. auto.
+          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Printexpr; eauto. eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto.
+          + apply refl_match; auto.
         - exists (State stk v next0 rm ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Printstring; eauto.
-          + apply refl_match. auto.
+          + apply refl_match; auto.
         - exists (State stk v next0 rm newms). split.
-          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Store; eauto.
-          + apply refl_match. auto.
+          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Store; eauto. eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto. eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto. 
+          + apply refl_match; auto.
         - exists (State stk v next0 (rm#reg<-val) ms). split.
-          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Load; eauto.
-          + apply refl_match. auto.
+          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Load; eauto. eapply eval_expr_eq; eauto. apply regmap_eq_sym. auto.
+          + apply refl_match; auto. apply regmap_eq_insert. auto.
         - exists (State stk v next0 rm ms). split.
-          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Assume_holds; eauto.
-          + apply refl_match. auto.
+          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Assume_holds; eauto. eapply eval_list_expr_eq; eauto. apply regmap_eq_sym. auto.
+          + apply refl_match; auto.
         - simpl in FINDF. rewrite <- base_version_unchanged in FINDF. apply synth_frame_unchanged in SYNTH.
           exists (State (synth++stk) newver la newrm ms). split.
-          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Assume_fails; eauto.
-          + apply refl_match. apply match_app. auto. }
+          + left. apply plus_one. apply nd_exec_lowered. eapply exec_Assume_fails; eauto. eapply eval_list_expr_eq; eauto. apply regmap_eq_sym. auto. eapply update_regmap_eq; eauto. eapply synthesize_frame_eq; eauto.
+          + apply refl_match. apply match_app. auto. apply regmap_eq_refl. }
       * inv DEOPT_COND. simpl in FINDF. rewrite <- base_version_unchanged in FINDF.
         apply synth_frame_unchanged in SYNTH. exists (State stk v next0 rm ms). split.
-        ** left. apply plus_one. eapply nd_exec_Framestate_go_on. econstructor; eauto.
-        ** apply refl_match. auto.
+        ** left. apply plus_one. eapply nd_exec_Framestate_go_on. econstructor; eauto. eapply update_regmap_eq; eauto. eapply synthesize_frame_eq; eauto. 
+        ** apply refl_match; auto.
       * inv DEOPT_COND. simpl in FINDF. rewrite <- base_version_unchanged in FINDF.
         apply synth_frame_unchanged in SYNTH. exists (State (synth++stk) newver la newrm ms). split.
-        ** left. apply plus_one. eapply nd_exec_Framestate_deopt. econstructor; eauto.
-        ** apply refl_match. apply match_app. auto.        
+        ** left. apply plus_one. eapply nd_exec_Framestate_deopt. econstructor; eauto. eapply update_regmap_eq; eauto. eapply synthesize_frame_eq; eauto. 
+        ** apply refl_match. apply match_app. auto. apply regmap_eq_refl.
 
     + rewrite OPT0 in OPT. inv OPT. (* caller_match *)
       apply safe_caller_lbl in SAFE as CALLERLBL.
@@ -1975,48 +2185,47 @@ Proof.
         - exists (State stk caller next0 rm_r ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Nop; eauto.
           + apply caller_match; auto.
-            eapply analyze_correct; eauto. simpl. auto.
-            unfold caller in HEQ. unfold dr_transf. rewrite HEQ. auto.
+            eapply def_analyze_correct; eauto. simpl. auto.
+            unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. auto.
         - exists (State stk caller next0 (rm_r#reg<-v) ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Op; eauto. agreeb.
           + apply caller_match; auto.
-            eapply analyze_correct; eauto. simpl. auto.
-            unfold caller in HEQ. unfold dr_transf. rewrite HEQ. apply define_insert. auto.
+            eapply def_analyze_correct; eauto. simpl. auto.
+            unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. apply define_insert. auto.
             apply rm_agree_insert. auto.
         - eapply agree_movelistb in UPDATE; auto. destruct UPDATE as [newrmsrc [UPDATE AGREE']].
           exists (State stk caller next0 newrmsrc ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Move; eauto.
           + apply caller_match; eauto.
-            eapply analyze_correct; eauto. simpl. auto.
-            unfold caller in HEQ. unfold dr_transf. rewrite HEQ. eapply define_insert_list; eauto.
+            eapply def_analyze_correct; eauto. simpl. auto.
+            unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. eapply define_insert_list; eauto.
           + auto.
           + eapply is_caller_movelist; eauto. unfold srv. auto.
         - exists (State stk caller (pc_cond v iftrue iffalse) rm_r ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Cond; eauto. agreeb.
           + apply caller_match; auto.
-            eapply analyze_correct; eauto.
+            eapply def_analyze_correct; eauto.
             { destruct v; destruct z; simpl; auto. }
-            unfold caller in HEQ. unfold dr_transf. rewrite HEQ. auto.
+            unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. auto.
         - poseq_destr fid0 fidoptim; simpl in FINDF.
           + erewrite find_function_same in FINDF; eauto. inv FINDF. (* calling optimized caller function *)
             exists (State (Stackframe retreg0 caller next0 rm_r ::stk) (current_version caller_f) (ver_entry (current_version caller_f)) newrm ms). split.
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto. agreeb.
             * rewrite current_version_same. rewrite SAME_ENTRY. apply caller_match; auto.
               apply ms_caller; auto.
-              { intros. eapply analyze_correct; eauto. simpl. auto. unfold caller in HEQ.
-                unfold dr_transf. rewrite HEQ. apply define_insert. auto. }
-              eapply analyze_init; eauto. apply rm_agree_refl.
+              { intros. eapply def_analyze_correct; eauto. simpl. auto. unfold caller in HEQ.
+                unfold def_dr_transf. rewrite HEQ. apply define_insert. auto. }
+              eapply def_analyze_init; eauto. apply rm_agree_refl.
           + rewrite <- find_function_unchanged in FINDF; auto. (* calling any other function *)
             exists (State (Stackframe retreg0 caller next0 rm_r :: stk) (current_version func) (ver_entry (current_version func)) newrm ms). split.
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto. agreeb.
-            * apply refl_match. apply ms_caller; auto.
-              { intros. eapply analyze_correct; eauto. simpl. auto. unfold caller in HEQ.
-                unfold dr_transf. rewrite HEQ. apply define_insert. auto. }
-
+            * apply refl_match; try (apply regmap_eq_refl). apply ms_caller; auto.
+              { intros. eapply def_analyze_correct; eauto. simpl. auto. unfold caller in HEQ.
+                unfold def_dr_transf. rewrite HEQ. apply define_insert. auto. }
         - inv MS.
-          + exists (State s1 fprev next0 (rmprev#retreg0<-retval) ms). split. (* ms_same *)
+          + exists (State s1 fprev next0 (rm#retreg0<-retval) ms). split. (* ms_same *)
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Return; eauto. agreeb.
-            * apply refl_match. auto.
+            * apply refl_match. auto. apply regmap_eq_insert. auto.
           + exists (State (Stackframe retreg caller next rm_r0 ::s1) callee retlbl_e (rm_e # retreg_e <- retval) ms). split. (* ms_callee *)
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Return; eauto. agreeb.
             * apply callee_match; auto.
@@ -2025,47 +2234,48 @@ Proof.
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Return; eauto. agreeb.
             * apply caller_match; auto. apply rm_agree_insert. auto.
           + destruct tgt as [fidtgt lbltgt]. simpl. simpl in FINDBASE. (* ms_deopt *)
-            exists (State (synth++s1) (*no*) fprev lbltgt (rmprev#retreg0<-retval) ms). split.
+            destruct UPDATE with retval as [rmdeopt UPDATE']. destruct UPDATE'.
+            exists (State (synth++s1) (*no*) fprev lbltgt rmdeopt ms). split.
             * left. eapply plus_two.
               ** apply nd_exec_lowered. eapply exec_Return; eauto. agreeb.
               ** { eapply nd_exec_Framestate_deopt. econstructor.
                    - apply FS_CODE.
                    - apply FINDBASE.
-                   - apply UPDATE.
+                   - auto.
                    - apply SYNTH. }
               ** auto.
-            * apply refl_match. apply match_app. auto.
+            * apply refl_match; auto. apply match_app. auto.
         - inv MS. exists (Final retval ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Return_Final; eauto. agreeb.
           + apply final_match.
         - exists (State stk caller next0 rm_r ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Printexpr; eauto. agreeb.
           + apply caller_match; auto.
-            eapply analyze_correct; eauto. simpl. auto.
-            unfold caller in HEQ. unfold dr_transf. rewrite HEQ. auto.
+            eapply def_analyze_correct; eauto. simpl. auto.
+            unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. auto.
         - exists (State stk caller next0 rm_r ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Printstring; eauto.
           + apply caller_match; auto.
-            eapply analyze_correct; eauto. simpl. auto.
-            unfold caller in HEQ. unfold dr_transf. rewrite HEQ. auto.
+            eapply def_analyze_correct; eauto. simpl. auto.
+            unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. auto.
         - exists (State stk caller next0 rm_r newms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Store; eauto. clear EVAL_AD. agreeb.
             eapply agree_exprb; eauto. eapply is_caller_expr; unfold srv; eauto. simpl.
             right. left. auto.
           + apply caller_match; auto.
-            eapply analyze_correct; eauto. simpl. auto.
-            unfold caller in HEQ. unfold dr_transf. rewrite HEQ. auto.
+            eapply def_analyze_correct; eauto. simpl. auto.
+            unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. auto.
         - exists (State stk caller next0 (rm_r#reg<-val) ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Load; eauto. agreeb.
           + apply caller_match; auto.
-            eapply analyze_correct; eauto. simpl. auto.
-            unfold caller in HEQ. unfold dr_transf. rewrite HEQ. apply define_insert. auto.
+            eapply def_analyze_correct; eauto. simpl. auto.
+            unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. apply define_insert. auto.
             apply rm_agree_insert. auto.
         - exists (State stk caller next0 rm_r ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Assume_holds; eauto. agreeb.
           + apply caller_match; auto.
-            eapply analyze_correct; eauto. simpl. auto.
-            unfold caller in HEQ. unfold dr_transf. rewrite HEQ. auto.
+            eapply def_analyze_correct; eauto. simpl. auto.
+            unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. auto.
         - eapply agree_regmapb in UPDATE; eauto.
           2: { eapply is_caller_varmap_assume; eauto. unfold srv. auto. }
           eapply agree_synthb in SYNTH; eauto.
@@ -2073,7 +2283,7 @@ Proof.
           simpl in FINDF. rewrite <- base_version_unchanged in FINDF. apply synth_frame_unchanged in SYNTH.
           exists (State (synth++stk) newver la newrm ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Assume_fails; eauto. agreeb.
-          + apply refl_match. apply match_app. auto. }
+          + apply refl_match. apply match_app. auto. apply regmap_eq_refl. }
       * inv DEOPT_COND. simpl in FINDF. rewrite <- base_version_unchanged in FINDF.
         apply synth_frame_unchanged in SYNTH. eapply caller_code_preserved in HEQ; eauto.
         eapply agree_regmapb in UPDATE; eauto.
@@ -2083,8 +2293,8 @@ Proof.
         exists (State stk caller next0 rm_r ms). split.
         ** left. apply plus_one. eapply nd_exec_Framestate_go_on. econstructor; eauto.
         ** apply caller_match; auto.
-           eapply analyze_correct; eauto. simpl. auto.
-           unfold caller in HEQ. unfold dr_transf. rewrite HEQ. auto.
+           eapply def_analyze_correct; eauto. simpl. auto.
+           unfold caller in HEQ. unfold def_dr_transf. rewrite HEQ. auto.
       * inv DEOPT_COND. simpl in FINDF. rewrite <- base_version_unchanged in FINDF.
         apply synth_frame_unchanged in SYNTH. eapply caller_code_preserved in HEQ; eauto.
         eapply agree_regmapb in UPDATE; eauto.
@@ -2093,7 +2303,7 @@ Proof.
         2: { eapply is_caller_synth_list_fs; eauto. unfold srv. auto. }
         exists (State (synth++stk) newver la newrm ms). split.
         ** left. apply plus_one. eapply nd_exec_Framestate_deopt. econstructor; eauto.
-        ** apply refl_match; auto. apply match_app. auto.
+        ** apply refl_match; auto. apply match_app. auto. apply regmap_eq_refl.
 
 
     + rewrite OPT0 in OPT. inv OPT. (* callee_match *)
@@ -2110,7 +2320,7 @@ Proof.
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Op; eauto.
               apply safe_step in SAFE as [s' [t STEPSRC]].
               inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE.
-              assert (v0=v) by (eapply shift_exprb; eauto). subst. auto. 
+              assert (v0=v) by (eapply shift_exprb; eauto). subst. auto.
             * apply callee_match; auto. apply rm_agree_shift_insert. auto. apply shift_rm_insert. auto.
           + (* Return replaced, going back to caller_match *)
             exists (State stk caller next0 (rm_r#reg<-v) ms). split.
@@ -2119,8 +2329,8 @@ Proof.
               inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE.
               assert (retval=v) by (eapply shift_exprb; eauto). subst. auto.
             * apply caller_match; auto.
-              { eapply analyze_correct. apply DEFS. apply CALL_CODE. simpl. auto.
-                unfold dr_transf. unfold caller in CALL_CODE. rewrite CALL_CODE. apply define_insert. auto. }
+              { eapply def_analyze_correct. apply DEFS. apply CALL_CODE. simpl. auto.
+                unfold def_dr_transf. unfold caller in CALL_CODE. rewrite CALL_CODE. apply define_insert. auto. }
               apply rm_agree_insert. auto.
         - destruct i'; inv INLINE_INSTR. apply safe_step in SAFE as [s' [t STEPSRC]].
           inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE.
@@ -2133,7 +2343,7 @@ Proof.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Cond; eauto.
             fold srv in EVAL. unfold shift_expr in EVAL. apply safe_step in SAFE as [s' [t STEPSRC]].
             inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE.
-            assert (v0=v) by (eapply shift_exprb; eauto). subst. auto. 
+            assert (v0=v) by (eapply shift_exprb; eauto). subst. auto.
           + rewrite <- shift_pc_cond. apply callee_match; auto.
         - destruct i'; inv INLINE_INSTR.
           poseq_destr fid0 fidoptim; simpl in FINDF.
@@ -2142,16 +2352,16 @@ Proof.
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.
               apply safe_step in SAFE as [s' [t STEPSRC]].
               inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE.
-              assert (valist0=valist) by (eapply shift_listb; eauto). subst. auto. 
+              assert (valist0=valist) by (eapply shift_listb; eauto). subst. auto.
             * rewrite current_version_same. rewrite SAME_ENTRY. apply caller_match; auto.
-              apply ms_callee; auto. eapply analyze_init; eauto. apply rm_agree_refl.
+              apply ms_callee; auto. eapply def_analyze_init; eauto. apply rm_agree_refl.
           + rewrite <- find_function_unchanged in FINDF; auto. (* calling any other function *)
             exists (State (Stackframe r callee l1 rm_e :: (Stackframe retreg caller next rm_r::stk)) (current_version func) (ver_entry (current_version func)) newrm ms). split.
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.
               apply safe_step in SAFE as [s' [t STEPSRC]].
               inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE.
-              assert (valist0=valist) by (eapply shift_listb; eauto). subst. auto. 
-            * apply refl_match. apply ms_callee; auto.
+              assert (valist0=valist) by (eapply shift_listb; eauto). subst. auto.
+            * apply refl_match. apply ms_callee; auto. apply regmap_eq_refl.
         - destruct i'; inv INLINE_INSTR.      (* all returns have been replaced *)
         - destruct i'; inv INLINE_INSTR.
         - destruct i'; inv INLINE_INSTR.
@@ -2159,7 +2369,7 @@ Proof.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Printexpr; eauto.
             apply safe_step in SAFE as [s' [t STEPSRC]].
             inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE.
-            assert (printval0=printval) by (eapply shift_exprb; eauto). subst. auto. 
+            assert (printval0=printval) by (eapply shift_exprb; eauto). subst. auto.
           + apply callee_match; auto.
         - destruct i'; inv INLINE_INSTR.
           exists (State (Stackframe retreg caller next rm_r::stk) callee l0 rm_e ms). split.
@@ -2171,14 +2381,14 @@ Proof.
             inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE.
             assert (val0=val) by (eapply shift_exprb; eauto). subst.
             assert (addr0=addr) by (eapply shift_exprb; eauto). subst.
-            eapply exec_Store; eauto. 
+            eapply exec_Store; eauto.
           + apply callee_match; auto.
         - destruct i'; inv INLINE_INSTR.
           exists (State (Stackframe retreg caller next rm_r::stk) callee l0 (rm_e#r<-val) ms). split.
           + left. apply plus_one. apply nd_exec_lowered. eapply exec_Load; eauto.
             apply safe_step in SAFE as [s' [t STEPSRC]].
             inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE.
-            assert (addr0=addr) by (eapply shift_exprb; eauto). subst. auto. 
+            assert (addr0=addr) by (eapply shift_exprb; eauto). subst. auto.
           + apply callee_match; auto. apply rm_agree_shift_insert. auto. apply shift_rm_insert. auto.
         - destruct i'; inv INLINE_INSTR.
           exists (State (Stackframe retreg caller next rm_r::stk) callee l2 rm_e ms). split.
@@ -2203,9 +2413,10 @@ Proof.
             { unfold check_synth_list in SL_CHECK. destruct sl; auto. inv SL_CHECK. }
             subst. inv SYNTH2. inv SYNTH.
             apply ms_deopt; auto. 2: { intros. constructor. }
-            eapply update_deopt_regmap; eauto.
+            eapply update_deopt_regmap.
             eapply agree_regmapb; eauto.
-            eapply is_caller_varmap_fs; eauto. unfold srv; auto. }
+            eapply is_caller_varmap_fs; eauto. unfold srv; auto. eapply VM_CHECK. apply regmap_eq_refl.
+      }
       * inv DEOPT_COND. eapply callee_code_preserved in CODE as [i [CODESRC INLINE_INSTR]]; eauto.
         destruct i; inv INLINE_INSTR.
         apply safe_step in SAFE as [s' [t STEPSRC]].
@@ -2225,7 +2436,7 @@ Proof.
            econstructor; eauto.
         ** apply callee_match; auto.
       * inv DEOPT_COND. eapply callee_code_preserved in CODE as [i [CODESRC INLINE_INSTR]]; eauto.
-        destruct i; inv INLINE_INSTR. 
+        destruct i; inv INLINE_INSTR.
         apply safe_step in SAFE as [s' [t STEPSRC]].
         assert (H: exists newrm0, update_regmap v rm_e newrm0).
         { inv STEPSRC; try inv DEOPT_COND; try inv STEP; rewrite CODESRC in CODE; inv CODE; eauto. }
@@ -2248,8 +2459,7 @@ Proof.
            apply ms_deopt; auto. 2: { intros. constructor. }
            eapply update_deopt_regmap; eauto.
            eapply agree_regmapb; eauto.
-           eapply is_caller_varmap_fs; eauto. unfold srv; auto.
-
-      
+           eapply is_caller_varmap_fs; eauto. unfold srv; auto. apply regmap_eq_refl.
     + inv STEP. inv STEP0.      (* final_match *)
 Qed.
+

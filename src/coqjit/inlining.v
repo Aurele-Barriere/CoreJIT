@@ -239,9 +239,6 @@ Fixpoint check_varmap_progress (vm:varmap) (def:regset): bool :=
   end.
 
 (* Checking that the varmap has a correct form *)
-Definition reg_neq (r1:reg) (r2:reg) : bool :=
-  negb (Pos.eqb r1 r2).
-
 Definition op_no_use (r:reg) (o:op) : bool :=
   match o with
   | Reg r' => reg_neq r r'
@@ -257,28 +254,37 @@ Definition expr_no_use (r:reg) (e:expr) :=
 Definition varmap_no_use (r:reg) (vm:varmap): bool :=
   fold_left (fun b re => andb b (andb (reg_neq r (fst re)) (expr_no_use r (snd re)))) vm true.
 
+(* Checking that the varmap contains the assignment (retreg<-retreg) *)
+Definition check_varmap_capture_retreg (vm:varmap) (retreg:reg): bool :=
+  fold_left (fun b a => b || (check_reconstructed retreg a)) vm false.
+
+(* Checking that a varmap does not contain any use of retreg except once (retreg<-retreg) *)
+Fixpoint check_varmap_only_once (vm:varmap) (retreg:reg): bool :=
+  match vm with
+  | nil => true
+  | a::vm' => orb (andb (check_reconstructed retreg a) (varmap_no_use retreg vm'))
+                  (andb (reg_neq retreg (fst a) && expr_no_use retreg (snd a)) (check_varmap_only_once vm' retreg))
+  end.
 
 (* Checking that the varmap is correct for inlining *)
 (* In this case, we ask the varmap to contain the assignment (retreg<-retreg), *)
 (* And that retreg should only appear here *)
-(* In this first version, we check that this is the beginning of the varmap *)
-(* We could extend that to varmaps where (retreg<-retreg) appears in the middle *)
-Definition check_vm (vm:varmap) (retreg:reg) (abs:abs_dr): res unit :=
+Definition check_vm (vm:varmap) (retreg:reg) (abs:def_abs_dr): res unit :=
   match abs with
-  | FlatRegset.Inj def =>
+  | DefFlatRegset.Inj def =>
     match (check_varmap_progress vm def) with
     | true =>
-      match vm with
-      | nil => Error "the varmap does not capture the return register"
-      | a::vm' =>
-        match (andb (check_reconstructed retreg a) (varmap_no_use retreg vm')) with
+      match check_varmap_capture_retreg vm retreg with
+      | true =>
+        match check_varmap_only_once vm retreg with
         | true => OK tt
         | false => Error "The varmap doesn't have the desired form"
         end
+      | false => Error "the varmap does not capture the return register"
       end
     | false => Error "The analysis can't guarantee progress preservation"
     end
-  | _ => Error "The analysis didn't converger"
+  | _ => Error "The analysis didn't converge"
   end.
 
 (* The deopt target of the Framestate should point to a valid function *)
@@ -298,7 +304,7 @@ Definition optimize_inline (fidoptim:fun_id) (call_lbl:label) (p:program): res p
       match (ver_code caller)!nextlbl with (* making sure that the next lbl is a Framestate *)
       | Some (Framestate tgt vm sl nextlbl') =>
         do abs <- try_op (defined_regs_analysis (ver_code caller) (fn_params func) (ver_entry caller)) "Def_regs analysis failed";
-          do def_regs <- OK(absstate_get call_lbl abs);
+          do def_regs <- OK(def_absstate_get call_lbl abs);
           do sl_check <- check_synth_list sl;
           do vm_check <- check_vm vm retreg def_regs;
           do tgt_check <- check_tgt tgt p;

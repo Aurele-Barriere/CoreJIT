@@ -9,6 +9,7 @@ Require Export interpreter.
 Require Export profiler_types.
 Require Export optimizer.
 Require Export jit.
+Require Export liveness.
 Require Extraction.
 
 (* Standard lib *)
@@ -63,6 +64,6 @@ Extract Constant spacing => "Params.spacing".
 Cd "extraction".
 
 Separate Extraction jit_step jit_program jit_final_value initial_jit_state
-         insert_all_framestates test_optimizer
+         insert_all_framestates test_optimizer liveness_analyze
          PMap.set PMap.get PMap.init
          Pos.leb Pos.pred Z.succ Z.pred Z.neg Z.add Z.sub Z.mul Z.div Z.modulo Z.compare Z.of_N Z.land.

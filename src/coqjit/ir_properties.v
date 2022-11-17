@@ -3,7 +3,8 @@
 Require Export common.
 Require Export values.
 Require Export specIR.
-
+Require Import Coq.MSets.MSetPositive.
+Require Export def_regs.
 
 (** * Internal Determinism of Lowered Steps *)
 
@@ -283,7 +284,6 @@ Proof.
   - inv H. inv H0. auto.
 Qed.
 
-  
 (** * Properties of helper functions  *)
 (* max_pos returns something bigger than any index *)
 Lemma max_pos'_correct:
@@ -500,4 +500,148 @@ Lemma safe_code:
 Proof.
   intros. apply safe_step in H as [s' [t STEP]].
   eapply step_code; eauto.
+Qed.
+
+(** * Regmap equivalence  *)
+(* We define an equivalence over Regmaps here, weaker than Coq equality *)
+Definition regmap_eq (rm1 rm2:reg_map): Prop :=
+  forall r:reg, rm1 # r = rm2 # r.
+
+Lemma regmap_eq_refl:
+  forall rm, regmap_eq rm rm.
+Proof. intros. unfold regmap_eq. intros. auto. Qed.
+
+Lemma regmap_eq_sym:
+  forall rm1 rm2, regmap_eq rm1 rm2 -> regmap_eq rm2 rm1.
+Proof. unfold regmap_eq. intros. symmetry. apply H. Qed.
+
+Lemma regmap_eq_trans:
+  forall rm1 rm2 rm3,
+    regmap_eq rm1 rm2 ->
+    regmap_eq rm2 rm3 ->
+    regmap_eq rm1 rm3.
+Proof. unfold regmap_eq. intros. rewrite <- H0. apply H. Qed.
+
+Lemma regmap_eq_insert:
+  forall rm1 rm2 r v,
+    regmap_eq rm1 rm2 ->
+    regmap_eq (rm1#r<-v) (rm2#r<-v).
+Proof.
+  unfold regmap_eq. intros. poseq_destr r r0.
+  - rewrite PTree.gss. rewrite PTree.gss. auto.
+  - rewrite PTree.gso; auto. rewrite PTree.gso; auto.
+Qed.
+
+Lemma regmap_eq_comm:
+  forall rm1 rm2 r1 v1 r2 v2,
+    regmap_eq rm1 rm2 ->
+    reg_neq r1 r2 = true ->
+    regmap_eq ((rm1#r1<-v1) # r2 <- v2) ((rm2#r2<-v2) # r1 <- v1).
+Proof.
+  unfold regmap_eq. intros. poseq_destr r r1.
+  - rewrite PTree.gso.
+    + rewrite PTree.gss. rewrite PTree.gss. auto.
+    + unfold reg_neq in H0. apply negb_true_iff in H0. apply POrderedType.Positive_as_OT.eqb_neq. auto.
+  - poseq_destr r r2.
+    + rewrite PTree.gss. rewrite PTree.gso.
+      * rewrite PTree.gss. auto.
+      * auto.
+    + repeat rewrite PTree.gso; auto.
+Qed.
+
+Lemma regmap_eq_defined:
+  forall rm1 rm2 rs,
+    defined rm1 rs ->
+    regmap_eq rm1 rm2 ->
+    defined rm2 rs.
+Proof.
+  unfold regmap_eq, defined. intros rm1 rm2 rs H H0.
+  destruct rs as [|rs|]; auto. intros. specialize (H0 r). rewrite <- H0. auto.
+Qed.
+
+Lemma eval_op_eq:
+  forall rm1 rm2 o v,
+    regmap_eq rm1 rm2 ->
+    eval_op o rm1 v ->
+    eval_op o rm2 v.
+Proof.
+  unfold regmap_eq. intros. inv H0; constructor. rewrite <- H. auto.
+Qed.
+
+Lemma eval_expr_eq:
+  forall rm1 rm2 e v,
+    regmap_eq rm1 rm2 ->
+    eval_expr e rm1 v ->
+    eval_expr e rm2 v.
+Proof.
+  unfold regmap_eq. intros. inv H0.
+  - inv EVAL. eapply eval_op_eq in EVALL; eauto. eapply eval_op_eq in EVALR; eauto.
+    constructor; auto. econstructor; eauto.
+  - inv EVAL. eapply eval_op_eq in EVAL0; eauto.
+    constructor; auto. econstructor; eauto.
+Qed.
+
+Lemma eval_list_expr_eq:
+  forall rm1 rm2 le b,
+    regmap_eq rm1 rm2 ->
+    eval_list_expr le rm1 b ->
+    eval_list_expr le rm2 b.
+Proof.
+  unfold regmap_eq. intros. generalize dependent b. induction le; intros.
+  - inv H0. constructor.
+  - inv H0.
+    + eapply eval_expr_eq in EVAL; eauto. constructor. auto.
+    + eapply eval_expr_eq in EVALH; eauto. apply IHle in EVALL. econstructor; eauto.
+Qed.
+
+Lemma eval_list_eq:
+  forall rm1 rm2 le lv,
+    regmap_eq rm1 rm2 ->
+    eval_list le rm1 lv ->
+    eval_list le rm2 lv.
+Proof.
+  unfold regmap_eq. intros. generalize dependent lv. induction le; intros.
+  - inv H0. constructor.
+  - inv H0. apply IHle in EVALL. eapply eval_expr_eq in EVALH; eauto. constructor; auto.
+Qed.
+
+Lemma update_movelist_eq:
+  forall rm1 rm2 rm2u ml,
+    regmap_eq rm1 rm2 ->
+    update_movelist ml rm2 rm2u ->
+    exists rm1u,
+      update_movelist ml rm1 rm1u /\
+      regmap_eq rm1u rm2u.
+Proof.
+  unfold update_movelist. intros. generalize dependent rm2u. induction ml; intros.
+  - inv H0. exists rm1. split; auto. constructor.
+  - inv H0. apply regmap_eq_sym in H. eapply eval_expr_eq in EVAL; eauto.
+    apply IHml in UPDATE as [rm1u [UPDATE EQ]].
+    exists (rm1u#r<-v). split. constructor; auto. unfold regmap_eq in *. intros.
+    poseq_destr r r0.
+    + rewrite PTree.gss. rewrite PTree.gss. auto.
+    + rewrite PTree.gso; auto. rewrite PTree.gso; auto.
+Qed.
+
+Lemma update_regmap_eq:
+  forall rm1 rm2 newrm vm,
+    regmap_eq rm1 rm2 ->
+    update_regmap vm rm2 newrm ->
+    update_regmap vm rm1 newrm.
+Proof.
+  intros. generalize dependent newrm. induction vm; intros.
+  - inv H0. constructor.
+  - inv H0. apply regmap_eq_sym in H. eapply eval_expr_eq in EVAL; eauto.
+    apply IHvm in UPDATE. constructor; auto.
+Qed.
+
+Lemma synthesize_frame_eq:
+  forall rm1 rm2 p sl stack,
+    regmap_eq rm1 rm2 ->
+    synthesize_frame p rm2 sl stack ->
+    synthesize_frame p rm1 sl stack.
+Proof.
+  intros. generalize dependent stack. induction sl; intros.
+  - inv H0. constructor.
+  - inv H0. eapply update_regmap_eq in UPDATE; eauto. constructor; auto.
 Qed.

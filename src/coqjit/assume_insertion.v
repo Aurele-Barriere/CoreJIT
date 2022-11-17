@@ -45,15 +45,15 @@ Definition validator (v:version) (fs_lbl: label) (guard:list expr) (params: list
   match ((ver_code v)#fs_lbl) with
   | Some (Framestate _ _ _ next) =>
     do abs <- try_op (defined_regs_analysis (ver_code v) params (ver_entry v)) "Def_regs analysis failed";
-      do def_regs <- OK(absstate_get fs_lbl abs);
+      do def_regs <- OK(def_absstate_get fs_lbl abs);
       match def_regs with
-      | FlatRegset.Inj def =>
+      | DefFlatRegset.Inj def =>
         match (check_guard guard def) with
         | true => OK tt
         | false => Error "The guard might evaluate to an error"
         end
-      | FlatRegset.Top => Error "The analysis couldn't get the exact set of defined registers: TOP"
-      | FlatRegset.Bot => Error "The analysis couldn't get the exact set of defined registers: BOT"
+      | DefFlatRegset.Top => Error "The analysis couldn't get the exact set of defined registers: TOP"
+      | DefFlatRegset.Bot => Error "The analysis couldn't get the exact set of defined registers: BOT"
       end
   | _ => Error "Not pointing to a valid Framestate"
   end.

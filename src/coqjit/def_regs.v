@@ -4,11 +4,10 @@
 (* This analysis tracks defined registers, using Kildall library *)
 
 Require Import specIR.
+Require Import Lattice.
 Require Import Kildall.
 Require Import Coq.MSets.MSetPositive.
-Require Import Lattice.
 
-(* A set of defined registers *)
 Definition regset: Type := PositiveSet.t.
 Lemma regset_eq_refl: forall x, PositiveSet.eq x x.
 Proof. apply PositiveSet.eq_equiv. Qed.
@@ -19,7 +18,7 @@ Proof. apply PositiveSet.eq_equiv. Qed.
 
 (* A Flat Semi-Lattice for sets of defined registers *)
 (* Either Bot, a given set, or Top *)
-Module FlatRegset <: SEMILATTICE_WITH_TOP.
+Module DefFlatRegset <: SEMILATTICE_WITH_TOP.
 
 Inductive t' : Type :=
   | Bot: t'
@@ -124,79 +123,77 @@ Proof.
   destruct (PositiveSet.equal r r0) eqn:EQ; simpl; auto. apply PositiveSet.equal_spec. auto.
 Qed.
 
-End FlatRegset.
+End DefFlatRegset.
 
-
-Definition abs_dr: Type := FlatRegset.t.
 (* Top means we can't know for sure the set of defined registers *)
 (* Inj rs means rs is the set of defined registers at this point *)
 (* Bot is the initial value *)
-
-(* At the function entry, we know parameters are defined *)
-Fixpoint entry_set (params:list reg): regset :=
-  match params with
-  | nil => PositiveSet.empty
-  | p::params' => PositiveSet.add p (entry_set params')
-  end.
-
-Definition entry_abs_dr (params:list reg): abs_dr :=
-  FlatRegset.Inj (entry_set params).
-
-Module DS := Dataflow_Solver (FlatRegset) (NodeSetBackward).
+Definition def_abs_dr: Type := DefFlatRegset.t.
 
 (* Associating an abs_dr to each label *)
-Definition abs_state : Type := PMap.t abs_dr.
-Definition absstate_get (pc:label) (abs:abs_state) : abs_dr :=
+Definition def_abs_state : Type := PMap.t def_abs_dr.
+Definition def_absstate_get (pc:label) (abs:def_abs_state) : def_abs_dr :=
   PMap.get pc abs.
 
-
-(* Inserting a new defined register into an abstract set *)
-Definition insert (r:reg) (adr:abs_dr) : abs_dr :=
-  match adr with
-  | FlatRegset.Top => FlatRegset.Top
-  | FlatRegset.Bot => FlatRegset.Inj (PositiveSet.singleton r)
-  | FlatRegset.Inj rs => FlatRegset.Inj (PositiveSet.add r rs)
+(* At the function entry, we know parameters are defined *)
+Fixpoint def_entry_set (params:list reg): regset :=
+  match params with
+  | nil => PositiveSet.empty
+  | p::params' => PositiveSet.add p (def_entry_set params')
   end.
 
-Fixpoint insert_list (lr:list reg) (adr:abs_dr) : abs_dr :=
+Definition def_entry_abs_dr (params:list reg): def_abs_dr :=
+  DefFlatRegset.Inj (def_entry_set params).
+
+Module DS := Dataflow_Solver (DefFlatRegset) (NodeSetBackward).
+
+(* Inserting a new defined register into an abstract set *)
+Definition def_insert (r:reg) (adr:def_abs_dr) : def_abs_dr :=
+  match adr with
+  | DefFlatRegset.Top => DefFlatRegset.Top
+  | DefFlatRegset.Bot => DefFlatRegset.Inj (PositiveSet.singleton r)
+  | DefFlatRegset.Inj rs => DefFlatRegset.Inj (PositiveSet.add r rs)
+  end.
+
+Fixpoint def_insert_list (lr:list reg) (adr:def_abs_dr) : def_abs_dr :=
   match lr with
   | nil => adr
-  | r::lr' => insert r (insert_list lr' adr)
+  | r::lr' => def_insert r (def_insert_list lr' adr)
   end.
 
 (* The transf function that updates reg sets *)
-Definition dr_transf (c:code) (l:label) (adr:abs_dr) : abs_dr :=
+Definition def_dr_transf (c:code) (l:label) (adr:def_abs_dr) : def_abs_dr :=
   match c!l with
   | None => adr
   | Some i =>
     match i with
     | Op expr reg next =>
-      insert reg adr
+      def_insert reg adr
     | Move ml next =>
-      insert_list (map fst ml) adr
+      def_insert_list (map fst ml) adr
     | Call fid args retreg next =>
-      insert retreg adr
+      def_insert retreg adr
     | Load expr reg next =>
-      insert reg adr
+      def_insert reg adr
     | _ => adr                   (* other instructions can't declare registers *)
     end
   end.
 
-Definition defined_regs_analysis (c:code) (params:list reg) (entry:label): option abs_state:=
+Definition defined_regs_analysis (c:code) (params:list reg) (entry:label): option def_abs_state:=
   DS.fixpoint
     (PTree.map1 instr_succ c)
-    (dr_transf c)
-    ((entry,(entry_abs_dr params))::nil).
+    (def_dr_transf c)
+    ((entry,(def_entry_abs_dr params))::nil).
 
 
 (** * Correctness of the analysis *)
 
 (* Matching abstract reg_sets with a concrete regmap *)
-Definition defined (rm:reg_map) (adr:abs_dr) :=
+Definition defined (rm:reg_map) (adr:def_abs_dr) :=
   match adr with
-  | FlatRegset.Top => True
-  | FlatRegset.Bot => False
-  | FlatRegset.Inj rs =>
+  | DefFlatRegset.Top => True
+  | DefFlatRegset.Bot => False
+  | DefFlatRegset.Inj rs =>
     forall r, PositiveSet.In r rs <-> exists v, rm # r = Some v
   end.
 
@@ -237,8 +234,8 @@ Qed.
 Lemma eq_defined:
   forall s1 s2 rm,
     PositiveSet.eq s1 s2 ->
-    defined rm (FlatRegset.Inj s2) ->
-    defined rm (FlatRegset.Inj s1).
+    defined rm (DefFlatRegset.Inj s2) ->
+    defined rm (DefFlatRegset.Inj s1).
 Proof.
   unfold defined, PositiveSet.In. intros s1 s2 rm EQ DEF. intros r. specialize (DEF r).
   apply mem_eq with (r:=r) in EQ. rewrite EQ in DEF. auto.
@@ -246,7 +243,7 @@ Qed.
 
 Lemma defined_increasing:
   forall rm adr1 adr2,
-    FlatRegset.ge adr1 adr2 ->
+    DefFlatRegset.ge adr1 adr2 ->
     defined rm adr2 ->
     defined rm adr1.
 Proof.
@@ -256,12 +253,12 @@ Proof.
 Qed.
 
 (* The iterative analysis is correct *)
-Lemma analyze_successor:
+Lemma def_analyze_successor:
   forall v params abs pc i pc',
     defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs ->
     (ver_code v) # pc = Some i ->
     In pc' (instr_succ i) ->
-    FlatRegset.ge (absstate_get pc' abs) (dr_transf (ver_code v) pc (absstate_get pc abs)).
+    DefFlatRegset.ge (def_absstate_get pc' abs) (def_dr_transf (ver_code v) pc (def_absstate_get pc abs)).
 Proof.
   intros v params abs pc i pc' H H0 H1. unfold defined_regs_analysis in H.
   eapply DS.fixpoint_solution; eauto.
@@ -271,24 +268,24 @@ Proof.
   simpl. auto.
 Qed.
 
-Theorem analyze_correct:
+Theorem def_analyze_correct:
   forall v pc i pc' abs params rm,
     defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs ->
     (ver_code v) # pc = Some i ->
     In pc' (instr_succ i) ->
-    defined rm (dr_transf (ver_code v) pc (absstate_get pc abs)) ->
-    defined rm (absstate_get pc' abs).
+    defined rm (def_dr_transf (ver_code v) pc (def_absstate_get pc abs)) ->
+    defined rm (def_absstate_get pc' abs).
 Proof.
-  intros. eapply analyze_successor in H; eauto.
+  intros. eapply def_analyze_successor in H; eauto.
   eapply defined_increasing; eauto.
 Qed.
 
-Lemma analyze_init':
+Lemma def_analyze_init':
   forall rm params valist,
     specIR.init_regs valist params = Some rm ->
-    defined rm (entry_abs_dr params).
+    defined rm (def_entry_abs_dr params).
 Proof.
-  intros. unfold entry_abs_dr. simpl. generalize dependent valist. generalize dependent rm.
+  intros. unfold def_entry_abs_dr. simpl. generalize dependent valist. generalize dependent rm.
   induction params; intros.
   - destruct valist; inv H. split; intros; inv H.
     unfold empty_regmap in H0. rewrite PTree.gempty in H0. inv H0.
@@ -299,29 +296,29 @@ Proof.
       * apply IHparams in H. destruct H. poseq_destr a r.
         rewrite PTree.gss; eauto.
         rewrite PTree.gso; auto. eauto.
-    + apply PositiveSet.add_spec. fold entry_set. poseq_destr a r.
+    + apply PositiveSet.add_spec. fold def_entry_set. poseq_destr a r.
       * left. auto.
       * right. rewrite PTree.gso in H; auto. apply <- IHparams in H. auto.
 Qed.
 
-Theorem analyze_init:
+Theorem def_analyze_init:
   forall rm v params abs valist,
     defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs ->
     specIR.init_regs valist params = Some rm ->
-    defined rm (absstate_get (ver_entry v) abs).
+    defined rm (def_absstate_get (ver_entry v) abs).
 Proof.
   unfold defined_regs_analysis. intros rm v params abs valist FIX INIT.
-  assert (A: FlatRegset.ge (absstate_get (ver_entry v) abs) (entry_abs_dr params)).
+  assert (A: DefFlatRegset.ge (def_absstate_get (ver_entry v) abs) (def_entry_abs_dr params)).
   { eapply DS.fixpoint_entry; eauto. left. auto. }
   eapply defined_increasing; eauto.
-  eapply analyze_init'; eauto.
+  eapply def_analyze_init'; eauto.
 Qed.
 
 (** * More defined Properties *)
 Lemma define_insert:
   forall rm reg v rs,
     defined rm rs ->
-    defined rm # reg <- v (insert reg rs).
+    defined rm # reg <- v (def_insert reg rs).
 Proof.
   intros rm reg v rs DEF. destruct rs. inv DEF. 2: simpl; auto.
   simpl in DEF. simpl. intros x.
@@ -338,8 +335,12 @@ Lemma define_insert_list:
   forall ml rm newrm rs,
     defined rm rs ->
     update_movelist ml rm newrm ->
-    defined newrm (insert_list (map fst ml) rs).
+    defined newrm (def_insert_list (map fst ml) rs).
 Proof.
   unfold update_movelist. intros ml. induction ml; intros; inv H0. auto.
   simpl. apply define_insert. eapply IHml; eauto.
 Qed.
+
+(* Inequality between registers *)
+Definition reg_neq (r1:reg) (r2:reg) : bool :=
+  negb (Pos.eqb r1 r2).

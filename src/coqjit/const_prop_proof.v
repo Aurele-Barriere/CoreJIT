@@ -1206,14 +1206,14 @@ Proof.
 Qed.
  
 
-(** * Backward Simulation *)
-Theorem constprop_correct:
-  forall p fidoptim newp,
-    constant_propagation fidoptim p = OK (newp) ->
-    backward_internal_simulation p newp.
+(** * Forward Loud Simulation  *)
+Theorem constprop_correct_loud:
+  forall p fid newp,
+    constant_propagation fid p = OK newp ->
+    forward_internal_loud_simulation p newp.
 Proof.
-  intros p fidoptim newp CST. apply fwd_loud.
-  unfold constant_propagation in CST. repeat do_ok. rename HDO1 into FINDF. rename HDO0 into CST.
+  intros p fidoptim newp CST. unfold constant_propagation in CST. repeat do_ok.
+  rename HDO1 into FINDF. rename HDO0 into CST.
   apply Forward_internal_loud_simulation with (fsim_index:=unit) (fsim_order:=order) (fsim_match_states:=match_states p (current_version f) (fn_params f)).
   - apply wfounded.
   - assert (CSTV: constant_propagation_version (current_version f) (fn_params f) = OK v) by auto.
@@ -1239,4 +1239,13 @@ Proof.
     exists s2'. split.
     + left. apply plus_one. auto.
     + apply MATCH'.
+Qed.
+
+(** * Backward Simulation *)
+Theorem constprop_correct:
+  forall p fidoptim newp,
+    constant_propagation fidoptim p = OK (newp) ->
+    backward_internal_simulation p newp.
+Proof.
+  intros p fidoptim newp CST. apply fwd_loud. eapply constprop_correct_loud; eauto.
 Qed.

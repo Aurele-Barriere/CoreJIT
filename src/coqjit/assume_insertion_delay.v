@@ -43,9 +43,9 @@ Definition validator (v:version) (fs_lbl: label) (guard:list expr) (params:list 
         match (Pos.eqb next (ver_entry v)) with
         | false =>
           do abs <- try_op (defined_regs_analysis (ver_code v) params (ver_entry v)) "Def_regs analysis failed";
-            do def_regs <- OK(absstate_get next abs);
+            do def_regs <- OK(def_absstate_get next abs);
             match def_regs with
-            | FlatRegset.Inj def =>
+            | DefFlatRegset.Inj def =>
               match (check_guard guard def) with
               | true => OK tt
               | false => Error "The guard might evaluate to an error"

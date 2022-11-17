@@ -17,7 +17,7 @@ Inductive match_stackframe (v:version) (fid:fun_id) (guard:list expr) (fsl:label
     forall r lbl rm vins abs
       (AS_INSERT: insert_assume_version v fid guard fsl params = OK vins)
       (DEFREGS: defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs)
-      (DEF: forall retval, defined (rm#r<-retval) (absstate_get lbl abs)),
+      (DEF: forall retval, defined (rm#r<-retval) (def_absstate_get lbl abs)),
       (match_stackframe v fid guard fsl params) (Stackframe r v lbl rm) (Stackframe r vins lbl rm).
 
 (* Generalizing match_stackframe to the entire stack *)
@@ -102,7 +102,7 @@ Inductive match_states (p:program) (v:version) (fid:fun_id) (guard: list expr) (
       (MATCHSTACK: (match_stack v fid guard fsl params) s s')
       (OPT: insert_assume_version v fid guard fsl params = OK vins)
       (DEFREGS: defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs)
-      (DEF: defined rm (absstate_get fsl abs))
+      (DEF: defined rm (def_absstate_get fsl abs))
       (VALIDATE: validator v fsl guard params = OK tt)
       (FS_OPT: (ver_code vins) # fsl = Some (Framestate (fa,la) vm sl fresh))
       (AS_OPT: (ver_code vins) # fresh = Some (Assume guard (fa,la) vm sl next))
@@ -117,7 +117,7 @@ Inductive match_states (p:program) (v:version) (fid:fun_id) (guard: list expr) (
       (MATCHSTACK: (match_stack v fid guard fsl params) s s')
       (OPT: insert_assume_version v fid guard fsl params = OK vins)
       (DEFREGS: defined_regs_analysis (ver_code v) params (ver_entry v) = Some abs)
-      (DEF: defined rm (absstate_get lbl abs)),
+      (DEF: defined rm (def_absstate_get lbl abs)),
       (match_states p v fid guard fsl params) One (State s v lbl rm ms) (State s' vins lbl rm ms)
                                         
 | refl_match:                   (* matching outside of the optimized version *)
@@ -200,7 +200,7 @@ Qed.
 (** * Progress Preservation  *)
 Lemma evaluate_op:
   forall rm rs op,
-    defined rm (FlatRegset.Inj rs) ->
+    defined rm (DefFlatRegset.Inj rs) ->
     check_op op rs = true ->
     exists v, eval_op op rm v.
 Proof.
@@ -212,7 +212,7 @@ Qed.
 
 Lemma evaluate_expr:
   forall rm rs e,
-    defined rm (FlatRegset.Inj rs) ->
+    defined rm (DefFlatRegset.Inj rs) ->
     check_expr e rs = true ->
     exists v, eval_expr e rm v.
 Proof.
@@ -227,7 +227,7 @@ Qed.
 (* Evaluating a guard if it uses defined registers should be defined *)
 Lemma evaluate_succeeds:
   forall rm guard rs,
-    defined rm (FlatRegset.Inj rs) ->
+    defined rm (DefFlatRegset.Inj rs) ->
     check_guard guard rs = true ->
     exists v, eval_list_expr guard rm v.
 Proof.
@@ -243,7 +243,7 @@ Qed.
 Ltac def_ok :=
   match goal with
   | [CODE: (ver_code ?vsrc) ! ?lbl = Some ?i |- _] =>
-    eapply analyze_correct; eauto; simpl; auto; unfold dr_transf; try rewrite CODE; auto
+    eapply def_analyze_correct; eauto; simpl; auto; unfold def_dr_transf; try rewrite CODE; auto
   end.
 
 Lemma progress_preserved:
@@ -260,7 +260,7 @@ Proof.
   intros f vsrc vins fid guard fsl params s1 s2 p i OPTV FINDOPT CURVER MATCH SAFE.
   inv MATCH.
   - unfold validator in VALIDATE. rewrite FS_SRC in VALIDATE. repeat do_ok.
-    destruct (absstate_get fsl a) eqn:ABSDR; inv H0.
+    destruct (def_absstate_get fsl d) eqn:ABSDR; inv H0.
     destruct (check_guard guard r) eqn:CHECK; inv H1.
     inv DEFREGS. rewrite ABSDR in DEF. eapply evaluate_succeeds in CHECK as [v EVAL]; eauto.
     right. exists E0. rewrite OPT in OPTV. inv OPTV. destruct v.
@@ -389,7 +389,7 @@ Proof.
         apply interpreter_proof.init_regs_correct in HDO0.
         rewrite FINDOPTF in HDO1. inv HDO1. repeat (esplit; eauto).
         eapply opt_match; auto. apply match_stack_same.
-        fold vsrc. fold c. eauto. eapply analyze_init; eauto.
+        fold vsrc. fold c. eauto. eapply def_analyze_init; eauto.
       * erewrite <- find_function_unchanged; eauto. rewrite HDO1. simpl. rewrite HDO0. simpl.
         repeat (esplit; eauto). constructor. apply match_stack_same.
     + destruct stack; try destruct s; inv FORGE.
@@ -414,7 +414,7 @@ Proof.
       * exists One. exists (State s vsrc next rm ms). (* Assume holds *)
         split. left. apply plus_one. eapply nd_exec_Framestate_go_on. simpl.
         econstructor; eauto. eapply opt_match; eauto.
-        eapply analyze_correct; eauto. simpl; auto.  unfold dr_transf. rewrite FS_SRC. auto.
+        eapply def_analyze_correct; eauto. simpl; auto.  unfold def_dr_transf. rewrite FS_SRC. auto.
       * exists Zero. exists (State (synth++s) newver la newrm ms). (* Assume fails *)
         split. left. apply plus_one. eapply nd_exec_Framestate_deopt.
         econstructor; eauto.
@@ -468,7 +468,7 @@ Proof.
               left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.
               econstructor; eauto. constructor; auto. econstructor; eauto.
               intro. def_ok. apply define_insert; auto.
-              unfold vins. simpl. eapply analyze_init; eauto.
+              unfold vins. simpl. eapply def_analyze_init; eauto.
             * simpl in FINDF. erewrite <- find_function_unchanged in FINDF; eauto.
               exists Zero. exists (State (Stackframe retreg vsrc next rm :: s) (current_version func) (ver_entry (current_version func)) newrm ms). split.
               left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.
@@ -539,7 +539,7 @@ Proof.
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.
             * unfold validator in VALIDATE. fold c in VALIDATE. rewrite CODE_FS in VALIDATE. repeat do_ok.
               econstructor; eauto. constructor; auto. constructor; auto.
-              unfold vins. simpl. eapply analyze_init; eauto. 
+              unfold vins. simpl. eapply def_analyze_init; eauto. 
           + simpl in FINDF. erewrite <- find_function_unchanged in FINDF; eauto.
             exists Zero. exists (State (Stackframe retreg v' next rm :: s) (current_version func) (ver_entry (current_version func)) newrm ms). split.
             * left. apply plus_one. apply nd_exec_lowered. eapply exec_Call; eauto.

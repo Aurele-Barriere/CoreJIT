@@ -1,8 +1,8 @@
 .PHONY: coq ocaml all extract proofs clean clean_all clean_coq clean_extracted clean_ocaml clean_libs coq_depend ../native_lib/native_lib.o
 
 LIBS = Coqlib.v Maps.v Axioms.v Heaps.v Iteration.v Lattice.v Ordered.v Wfsimpl.v Kildall.v events.v Smallstep.v values.v Behaviors.v
-FILES = common.v specIR.v interpreter.v def_regs.v framestate_insertion.v lowering.v const_prop.v assume_insertion.v assume_insertion_delay.v inlining.v profiler_types.v optimizer.v jit.v
-PROOFS = ir_properties.v internal_simulations.v interpreter_proof.v const_prop_proof.v lowering_proof.v framestate_insertion_proof.v assume_insertion_proof.v assume_insertion_delay_proof.v inlining_proof.v optimizer_proof.v jit_proof.v
+FILES = common.v specIR.v interpreter.v def_regs.v ir_properties.v framestate_insertion.v lowering.v const_prop.v assume_insertion.v assume_insertion_delay.v inlining.v profiler_types.v optimizer.v jit.v 
+PROOFS = internal_simulations.v interpreter_proof.v const_prop_proof.v lowering_proof.v framestate_insertion_proof.v assume_insertion_proof.v assume_insertion_delay_proof.v inlining_proof.v optimizer_proof.v jit_proof.v
 
 COQC=coqc -R lib coqjit.lib
 COQDEP=coqdep -R lib coqjit.lib

@@ -7,6 +7,7 @@ author:
 - David Pichardie
 - Jan Vitek
 ---
+Also includes some work done by Roméo La Spina (liveness analysis + more general inlining).
 This is the development of CoreJIT, a verified JIT compiler.
 This document contains an overview of the code and build instructions.
 
